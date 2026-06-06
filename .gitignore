@@ -1,0 +1,25 @@
+# Зависимости
+node_modules
+
+# Сборка
+dist
+dist-ssr
+*.local
+
+# Переменные окружения (секреты не коммитим)
+.env
+.env.*
+!.env.example
+
+# Логи
+*.log
+npm-debug.log*
+
+# Редакторы / ОС
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# TypeScript
+*.tsbuildinfo

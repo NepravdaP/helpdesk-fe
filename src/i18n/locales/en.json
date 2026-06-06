@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "IT Portal",
+    "subtitle": "IT infrastructure management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "helpdesk": "HelpDesk",
+    "inventory": "Inventory",
+    "booking": "Booking",
+    "users": "Users",
+    "reports": "Reports"
+  },
+  "groups": {
+    "modules": "Modules",
+    "admin": "Administration"
+  },
+  "roles": {
+    "employee": "Employee",
+    "it": "IT specialist",
+    "admin": "Administrator"
+  },
+  "common": {
+    "search": "Search",
+    "create": "Create",
+    "all": "All",
+    "language": "Language",
+    "logout": "Log out",
+    "actAs": "Act as",
+    "empty": "No data",
+    "inDevelopment": "Section under development"
+  },
+  "tickets": {
+    "title": "Tickets",
+    "new": "New ticket",
+    "searchPlaceholder": "Search by subject…",
+    "col": {
+      "id": "#",
+      "title": "Subject",
+      "priority": "Priority",
+      "status": "Status",
+      "assignee": "Assignee",
+      "createdAt": "Created"
+    },
+    "status": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "filter": {
+      "status": "Status",
+      "priority": "Priority"
+    },
+    "unassigned": "—"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "openTickets": "Open tickets",
+    "equipment": "Equipment units",
+    "bookingsToday": "Bookings today"
+  }
+}

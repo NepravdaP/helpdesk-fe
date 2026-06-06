@@ -1,0 +1,67 @@
+{
+  "app": {
+    "title": "IT-портал",
+    "subtitle": "Управление IT-инфраструктурой"
+  },
+  "nav": {
+    "dashboard": "Дашборд",
+    "helpdesk": "HelpDesk",
+    "inventory": "Инвентаризация",
+    "booking": "Бронирование",
+    "users": "Пользователи",
+    "reports": "Отчёты"
+  },
+  "groups": {
+    "modules": "Модули",
+    "admin": "Администрирование"
+  },
+  "roles": {
+    "employee": "Сотрудник",
+    "it": "IT-специалист",
+    "admin": "Администратор"
+  },
+  "common": {
+    "search": "Поиск",
+    "create": "Создать",
+    "all": "Все",
+    "language": "Язык",
+    "logout": "Выйти",
+    "actAs": "Войти как",
+    "empty": "Нет данных",
+    "inDevelopment": "Раздел в разработке"
+  },
+  "tickets": {
+    "title": "Заявки",
+    "new": "Новая заявка",
+    "searchPlaceholder": "Поиск по теме…",
+    "col": {
+      "id": "№",
+      "title": "Тема",
+      "priority": "Приоритет",
+      "status": "Статус",
+      "assignee": "Исполнитель",
+      "createdAt": "Создана"
+    },
+    "status": {
+      "open": "Открыта",
+      "in_progress": "В работе",
+      "closed": "Закрыта"
+    },
+    "priority": {
+      "low": "Низкий",
+      "medium": "Средний",
+      "high": "Высокий"
+    },
+    "filter": {
+      "status": "Статус",
+      "priority": "Приоритет"
+    },
+    "unassigned": "—"
+  },
+  "dashboard": {
+    "title": "Дашборд",
+    "openTickets": "Открытые заявки",
+    "equipment": "Единиц оборудования",
+    "bookingsToday": "Броней сегодня"
+  }
+}
