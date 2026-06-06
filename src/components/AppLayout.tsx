@@ -11,6 +11,7 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
+import { palette } from "@/theme/colors";
 import type { Role } from "@/types";
 
 const { Sider, Header, Content } = Layout;
@@ -61,9 +62,9 @@ export function AppLayout() {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={220} theme="light" style={{ borderRight: "1px solid #f0f0f0" }}>
+      <Sider width={220} theme="light" style={{ borderRight: `1px solid ${palette.panel}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 20px" }}>
-          <DesktopOutlined style={{ fontSize: 20, color: "#185FA5" }} />
+          <DesktopOutlined style={{ fontSize: 20, color: palette.primary }} />
           <Typography.Text strong>{t("app.title")}</Typography.Text>
         </div>
         <Menu
@@ -86,7 +87,7 @@ export function AppLayout() {
             justifyContent: "flex-end",
             gap: 16,
             padding: "0 20px",
-            borderBottom: "1px solid #f0f0f0",
+            borderBottom: `1px solid ${palette.panel}`,
           }}
         >
           <Segmented

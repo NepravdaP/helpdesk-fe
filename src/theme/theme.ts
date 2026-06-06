@@ -1,20 +1,36 @@
 import type { ThemeConfig } from "antd";
+import { palette } from "./colors";
 
-// Единая тема Ant Design. Здесь же — брендовый акцент системы.
+// Тема Ant Design на фирменной палитре «Минстрой».
 export const theme: ThemeConfig = {
   token: {
-    colorPrimary: "#185FA5",
+    colorPrimary: palette.primary,
+    colorLink: palette.accent,
+    colorLinkHover: palette.primary,
+    colorTextHeading: palette.ink,
+    colorText: palette.text,
+    colorBgLayout: palette.section,
+    colorBorderSecondary: palette.panel,
     borderRadius: 8,
     fontSize: 14,
   },
   components: {
     Layout: {
-      siderBg: "#f5f5f4",
-      headerBg: "#ffffff",
+      siderBg: palette.white,
+      headerBg: palette.white,
+      bodyBg: palette.section,
       headerHeight: 56,
     },
     Menu: {
       itemBg: "transparent",
+      itemSelectedBg: palette.chip,
+      itemSelectedColor: palette.accent,
+      itemHoverColor: palette.accent,
+    },
+    Table: {
+      headerBg: palette.section,
+      headerColor: palette.ink,
+      rowHoverBg: palette.chip,
     },
   },
 };
