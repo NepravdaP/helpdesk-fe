@@ -34,13 +34,18 @@
     "title": "Заявки",
     "new": "Новая заявка",
     "searchPlaceholder": "Поиск по теме…",
+    "columns": "Столбцы",
     "col": {
       "id": "№",
       "title": "Тема",
+      "type": "Тип",
       "priority": "Приоритет",
       "status": "Статус",
+      "group": "Группа исполнителей",
+      "requester": "Заявитель",
       "assignee": "Исполнитель",
-      "createdAt": "Создана"
+      "createdAt": "Дата создания",
+      "updatedAt": "Дата изменения"
     },
     "status": {
       "open": "Открыта",
@@ -52,9 +57,23 @@
       "medium": "Средний",
       "high": "Высокий"
     },
+    "type": {
+      "repair": "Ремонт",
+      "replacement": "Замена",
+      "software": "Установка ПО",
+      "access": "Доступы",
+      "other": "Прочее"
+    },
+    "ticketGroup": {
+      "helpdesk": "Поддержка пользователей",
+      "network": "Сеть и серверы",
+      "print": "Печать",
+      "software": "Программное обеспечение"
+    },
     "filter": {
       "status": "Статус",
-      "priority": "Приоритет"
+      "priority": "Приоритет",
+      "type": "Тип"
     },
     "unassigned": "—"
   },

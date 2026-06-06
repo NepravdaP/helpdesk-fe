@@ -34,13 +34,18 @@
     "title": "Tickets",
     "new": "New ticket",
     "searchPlaceholder": "Search by subject…",
+    "columns": "Columns",
     "col": {
       "id": "#",
       "title": "Subject",
+      "type": "Type",
       "priority": "Priority",
       "status": "Status",
+      "group": "Assignee group",
+      "requester": "Requester",
       "assignee": "Assignee",
-      "createdAt": "Created"
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
     },
     "status": {
       "open": "Open",
@@ -52,9 +57,23 @@
       "medium": "Medium",
       "high": "High"
     },
+    "type": {
+      "repair": "Repair",
+      "replacement": "Replacement",
+      "software": "Software install",
+      "access": "Access",
+      "other": "Other"
+    },
+    "ticketGroup": {
+      "helpdesk": "User support",
+      "network": "Network & servers",
+      "print": "Printing",
+      "software": "Software"
+    },
     "filter": {
       "status": "Status",
-      "priority": "Priority"
+      "priority": "Priority",
+      "type": "Type"
     },
     "unassigned": "—"
   },

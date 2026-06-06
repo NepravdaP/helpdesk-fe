@@ -13,16 +13,21 @@ export interface User {
 // ---- HelpDesk ----
 export type TicketStatus = "open" | "in_progress" | "closed";
 export type TicketPriority = "low" | "medium" | "high";
+export type TicketType = "repair" | "replacement" | "software" | "access" | "other";
+export type TicketGroup = "helpdesk" | "network" | "print" | "software";
 
 export interface Ticket {
   id: number;
   title: string;
+  type: TicketType;
   priority: TicketPriority;
   status: TicketStatus;
-  createdById: number;
+  group: TicketGroup | null; // группа исполнителей
+  createdById: number; // заявитель (FK → users)
   assignedToId: number | null;
   equipmentId: number | null;
-  createdAt: string; // ISO
+  createdAt: string; // ISO — дата создания
+  updatedAt: string; // ISO — дата изменения
 }
 
 // ---- Инвентаризация ----
