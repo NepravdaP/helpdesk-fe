@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -15,6 +15,7 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { formatDateTime } from "@/utils/format";
+import { TicketFormDrawer, type NewTicket } from "@/components/TicketFormDrawer";
 import type {
   Ticket,
   TicketGroup,
@@ -27,13 +28,13 @@ import type {
 type TicketRow = Ticket & { requesterName: string; assigneeName: string | null };
 
 // Мок-данные. Позже заменим на GET /api/tickets.
-const MOCK_TICKETS: TicketRow[] = [
-  { id: 142, title: "Не печатает принтер в 304", type: "repair", priority: "high", status: "open", group: "print", createdById: 5, assignedToId: null, equipmentId: 21, createdAt: "2025-06-01T09:12:00Z", updatedAt: "2025-06-01T09:12:00Z", requesterName: "Е. Петрова", assigneeName: null },
-  { id: 141, title: "Замена монитора, АРМ-58", type: "replacement", priority: "medium", status: "in_progress", group: "helpdesk", createdById: 7, assignedToId: 1, equipmentId: 58, createdAt: "2025-05-31T14:03:00Z", updatedAt: "2025-06-02T10:20:00Z", requesterName: "К. Смирнов", assigneeName: "А. Иванов" },
-  { id: 140, title: "Проектор в переговорной мигает", type: "repair", priority: "medium", status: "open", group: "print", createdById: 3, assignedToId: null, equipmentId: 12, createdAt: "2025-05-31T11:40:00Z", updatedAt: "2025-05-31T11:40:00Z", requesterName: "О. Кузнецова", assigneeName: null },
-  { id: 139, title: "Доступ к сетевой папке отдела", type: "access", priority: "low", status: "in_progress", group: "network", createdById: 6, assignedToId: 4, equipmentId: null, createdAt: "2025-05-30T13:05:00Z", updatedAt: "2025-06-01T08:00:00Z", requesterName: "Д. Волков", assigneeName: "П. Сидоров" },
-  { id: 138, title: "Установить ПО для бухгалтерии", type: "software", priority: "low", status: "closed", group: "software", createdById: 9, assignedToId: 4, equipmentId: null, createdAt: "2025-05-29T08:20:00Z", updatedAt: "2025-05-30T16:45:00Z", requesterName: "Н. Морозова", assigneeName: "П. Сидоров" },
-  { id: 137, title: "Не работает сетевой диск", type: "repair", priority: "high", status: "closed", group: "network", createdById: 2, assignedToId: 1, equipmentId: null, createdAt: "2025-05-28T16:55:00Z", updatedAt: "2025-05-29T09:30:00Z", requesterName: "С. Орлов", assigneeName: "А. Иванов" },
+const INITIAL_TICKETS: TicketRow[] = [
+  { id: 142, title: "Не печатает принтер в 304", description: "Принтер не реагирует на печать, мигает индикатор.", type: "repair", priority: "high", status: "open", group: "print", createdById: 5, assignedToId: null, equipmentId: 21, createdAt: "2025-06-01T09:12:00Z", updatedAt: "2025-06-01T09:12:00Z", requesterName: "Е. Петрова", assigneeName: null },
+  { id: 141, title: "Замена монитора, АРМ-58", description: "Монитор периодически гаснет, требуется замена.", type: "replacement", priority: "medium", status: "in_progress", group: "helpdesk", createdById: 7, assignedToId: 1, equipmentId: 58, createdAt: "2025-05-31T14:03:00Z", updatedAt: "2025-06-02T10:20:00Z", requesterName: "К. Смирнов", assigneeName: "А. Иванов" },
+  { id: 140, title: "Проектор в переговорной мигает", description: "Изображение мерцает при подключении по HDMI.", type: "repair", priority: "medium", status: "open", group: "print", createdById: 3, assignedToId: null, equipmentId: 12, createdAt: "2025-05-31T11:40:00Z", updatedAt: "2025-05-31T11:40:00Z", requesterName: "О. Кузнецова", assigneeName: null },
+  { id: 139, title: "Доступ к сетевой папке отдела", description: "Нужен доступ на чтение/запись к общей папке отдела.", type: "access", priority: "low", status: "in_progress", group: "network", createdById: 6, assignedToId: 4, equipmentId: null, createdAt: "2025-05-30T13:05:00Z", updatedAt: "2025-06-01T08:00:00Z", requesterName: "Д. Волков", assigneeName: "П. Сидоров" },
+  { id: 138, title: "Установить ПО для бухгалтерии", description: "Установить и настроить бухгалтерское ПО на 2 АРМ.", type: "software", priority: "low", status: "closed", group: "software", createdById: 9, assignedToId: 4, equipmentId: null, createdAt: "2025-05-29T08:20:00Z", updatedAt: "2025-05-30T16:45:00Z", requesterName: "Н. Морозова", assigneeName: "П. Сидоров" },
+  { id: 137, title: "Не работает сетевой диск", description: "Сетевой диск не монтируется после перезагрузки.", type: "repair", priority: "high", status: "closed", group: "network", createdById: 2, assignedToId: 1, equipmentId: null, createdAt: "2025-05-28T16:55:00Z", updatedAt: "2025-05-29T09:30:00Z", requesterName: "С. Орлов", assigneeName: "А. Иванов" },
 ];
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
@@ -76,6 +77,8 @@ const DEFAULT_VISIBLE: ColKey[] = [
 
 export function TicketsPage() {
   const { t, i18n } = useTranslation();
+  const [rows, setRows] = useState<TicketRow[]>(INITIAL_TICKETS);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = usePersistentState("", "");
   const [status, setStatus] = usePersistentState<TicketStatus | "all">("all", "all");
   const [priority, setPriority] = usePersistentState<TicketPriority | "all">("all", "all");
@@ -87,14 +90,14 @@ export function TicketsPage() {
 
   const data = useMemo(
     () =>
-      MOCK_TICKETS.filter((x) => {
+      rows.filter((x) => {
         const okSearch = x.title.toLowerCase().includes(search.toLowerCase());
         const okStatus = status === "all" || x.status === status;
         const okPriority = priority === "all" || x.priority === priority;
         const okType = type === "all" || x.type === type;
         return okSearch && okStatus && okPriority && okType;
       }),
-    [search, status, priority, type],
+    [rows, search, status, priority, type],
   );
 
   // Определения всех столбцов; ниже отфильтруем по visible.
@@ -183,7 +186,7 @@ export function TicketsPage() {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t("tickets.title")}
         </Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>
           {t("tickets.new")}
         </Button>
       </div>
@@ -246,6 +249,12 @@ export function TicketsPage() {
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
         scroll={{ x: "max-content" }}
         size="middle"
+      />
+
+      <TicketFormDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onCreate={(ticket: NewTicket) => setRows((prev) => [ticket, ...prev])}
       />
     </Space>
   );

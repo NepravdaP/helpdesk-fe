@@ -23,6 +23,7 @@
   "common": {
     "search": "Поиск",
     "create": "Создать",
+    "cancel": "Отмена",
     "all": "Все",
     "language": "Язык",
     "logout": "Выйти",
@@ -74,6 +75,25 @@
       "status": "Статус",
       "priority": "Приоритет",
       "type": "Тип"
+    },
+    "form": {
+      "subject": "Тема",
+      "subjectPlaceholder": "Кратко опишите проблему",
+      "type": "Тип заявки",
+      "typePlaceholder": "Выберите тип",
+      "description": "Описание",
+      "descriptionPlaceholder": "Подробности: что произошло, где, с какого момента",
+      "requester": "Заявитель",
+      "requesterPlaceholder": "Поиск пользователя…",
+      "equipment": "Актив (необязательно)",
+      "equipmentPlaceholder": "Поиск актива…",
+      "derivedTitle": "Параметры по типу заявки",
+      "derivedHint": "Приоритет, группа исполнителей и срок определяются типом заявки — их настраивает суперадмин.",
+      "sla": "Срок исполнения",
+      "hours": "ч",
+      "selectTypeFirst": "Выберите тип заявки",
+      "submit": "Создать заявку",
+      "required": "Заполните поле"
     },
     "unassigned": "—"
   },

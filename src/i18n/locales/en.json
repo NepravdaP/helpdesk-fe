@@ -23,6 +23,7 @@
   "common": {
     "search": "Search",
     "create": "Create",
+    "cancel": "Cancel",
     "all": "All",
     "language": "Language",
     "logout": "Log out",
@@ -74,6 +75,25 @@
       "status": "Status",
       "priority": "Priority",
       "type": "Type"
+    },
+    "form": {
+      "subject": "Subject",
+      "subjectPlaceholder": "Briefly describe the problem",
+      "type": "Ticket type",
+      "typePlaceholder": "Select a type",
+      "description": "Description",
+      "descriptionPlaceholder": "Details: what happened, where, since when",
+      "requester": "Requester",
+      "requesterPlaceholder": "Search user…",
+      "equipment": "Asset (optional)",
+      "equipmentPlaceholder": "Search asset…",
+      "derivedTitle": "Parameters by ticket type",
+      "derivedHint": "Priority, assignee group and due time are determined by the ticket type — configured by the superadmin.",
+      "sla": "Due time",
+      "hours": "h",
+      "selectTypeFirst": "Select a ticket type",
+      "submit": "Create ticket",
+      "required": "This field is required"
     },
     "unassigned": "—"
   },
