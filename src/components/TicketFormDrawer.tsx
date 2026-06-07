@@ -1,7 +1,6 @@
-import { Button, Drawer, Form, Input, Select, Space, Tag, Typography } from "antd";
+import { Button, Drawer, Form, Input, Select, Space, Tag, Typography, theme } from "antd";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
-import { palette } from "@/theme/colors";
 import { TICKET_TYPE_CONFIG } from "@/config/ticketTypes";
 import type { Ticket, TicketPriority, TicketType } from "@/types";
 
@@ -57,6 +56,7 @@ export function TicketFormDrawer({
 }) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { token } = theme.useToken();
   const [form] = Form.useForm<FormValues>();
 
   const selectedType = Form.useWatch("type", form) as TicketType | undefined;
@@ -178,8 +178,8 @@ export function TicketFormDrawer({
 
         <div
           style={{
-            background: palette.section,
-            border: `1px solid ${palette.panel}`,
+            background: token.colorFillQuaternary,
+            border: `1px solid ${token.colorBorderSecondary}`,
             borderRadius: 8,
             padding: "12px 16px",
           }}

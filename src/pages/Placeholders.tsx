@@ -12,7 +12,7 @@ function Placeholder({ titleKey }: { titleKey: string }) {
   );
 }
 
-export const InventoryPage = () => <Placeholder titleKey="nav.inventory" />;
+export const AssetsPage = () => <Placeholder titleKey="nav.assets" />;
 export const BookingPage = () => <Placeholder titleKey="nav.booking" />;
 export const UsersPage = () => <Placeholder titleKey="nav.users" />;
 export const ReportsPage = () => <Placeholder titleKey="nav.reports" />;

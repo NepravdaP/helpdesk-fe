@@ -6,7 +6,7 @@
   "nav": {
     "dashboard": "Дашборд",
     "helpdesk": "HelpDesk",
-    "inventory": "Инвентаризация",
+    "assets": "Активы",
     "booking": "Бронирование",
     "users": "Пользователи",
     "reports": "Отчёты"
@@ -26,6 +26,8 @@
     "cancel": "Отмена",
     "all": "Все",
     "language": "Язык",
+    "themeLight": "Светлая тема",
+    "themeDark": "Тёмная тема",
     "logout": "Выйти",
     "actAs": "Войти как",
     "empty": "Нет данных",

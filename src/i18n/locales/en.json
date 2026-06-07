@@ -6,7 +6,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "helpdesk": "HelpDesk",
-    "inventory": "Inventory",
+    "assets": "Assets",
     "booking": "Booking",
     "users": "Users",
     "reports": "Reports"
@@ -26,6 +26,8 @@
     "cancel": "Cancel",
     "all": "All",
     "language": "Language",
+    "themeLight": "Light theme",
+    "themeDark": "Dark theme",
     "logout": "Log out",
     "actAs": "Act as",
     "empty": "No data",

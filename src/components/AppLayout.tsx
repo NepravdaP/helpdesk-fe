@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Layout, Menu, Segmented, Select, Space, Typography } from "antd";
+import { Button, Layout, Menu, Segmented, Select, Space, Tooltip, Typography, theme } from "antd";
 import {
   DashboardOutlined,
   CustomerServiceOutlined,
@@ -7,10 +7,13 @@ import {
   CalendarOutlined,
   TeamOutlined,
   BarChartOutlined,
+  BulbOutlined,
+  BulbFilled,
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
+import { useThemeMode } from "@/theme/themeMode";
 import { palette } from "@/theme/colors";
 import type { Role } from "@/types";
 
@@ -28,7 +31,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { key: "dashboard", path: "/dashboard", icon: <DashboardOutlined />, labelKey: "nav.dashboard", group: "modules", allow: ["employee", "it", "admin"] },
   { key: "helpdesk", path: "/helpdesk", icon: <CustomerServiceOutlined />, labelKey: "nav.helpdesk", group: "modules", allow: ["employee", "it", "admin"] },
-  { key: "inventory", path: "/inventory", icon: <DesktopOutlined />, labelKey: "nav.inventory", group: "modules", allow: ["employee", "it", "admin"] },
+  { key: "assets", path: "/assets", icon: <DesktopOutlined />, labelKey: "nav.assets", group: "modules", allow: ["employee", "it", "admin"] },
   { key: "booking", path: "/booking", icon: <CalendarOutlined />, labelKey: "nav.booking", group: "modules", allow: ["employee", "it", "admin"] },
   { key: "users", path: "/users", icon: <TeamOutlined />, labelKey: "nav.users", group: "admin", allow: ["admin"] },
   { key: "reports", path: "/reports", icon: <BarChartOutlined />, labelKey: "nav.reports", group: "admin", allow: ["admin"] },
@@ -37,8 +40,13 @@ const NAV: NavItem[] = [
 export function AppLayout() {
   const { t, i18n } = useTranslation();
   const { user, setRole } = useAuth();
+  const { mode, toggle } = useThemeMode();
+  const { token } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isDark = mode === "dark";
+  const siderTheme = isDark ? "dark" : "light";
 
   const selectedKey =
     NAV.find((n) => location.pathname.startsWith(n.path))?.key ?? "dashboard";
@@ -62,12 +70,13 @@ export function AppLayout() {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={220} theme="light" style={{ borderRight: `1px solid ${palette.panel}` }}>
+      <Sider width={220} theme={siderTheme} style={{ borderRight: `1px solid ${token.colorBorderSecondary}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "16px 20px" }}>
           <DesktopOutlined style={{ fontSize: 20, color: palette.primary }} />
           <Typography.Text strong>{t("app.title")}</Typography.Text>
         </div>
         <Menu
+          theme={siderTheme}
           mode="inline"
           selectedKeys={[selectedKey]}
           items={menuItems}
@@ -87,9 +96,18 @@ export function AppLayout() {
             justifyContent: "flex-end",
             gap: 16,
             padding: "0 20px",
-            borderBottom: `1px solid ${palette.panel}`,
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
+          <Tooltip title={isDark ? t("common.themeLight") : t("common.themeDark")}>
+            <Button
+              type="text"
+              aria-label={isDark ? t("common.themeLight") : t("common.themeDark")}
+              icon={isDark ? <BulbFilled /> : <BulbOutlined />}
+              onClick={toggle}
+            />
+          </Tooltip>
+
           <Segmented
             size="small"
             value={i18n.language.startsWith("en") ? "en" : "ru"}
