@@ -87,7 +87,7 @@
       "descriptionPlaceholder": "Подробности: что произошло, где, с какого момента",
       "requester": "Заявитель",
       "requesterPlaceholder": "Поиск пользователя…",
-      "equipment": "Актив (необязательно)",
+      "equipment": "Актив",
       "equipmentPlaceholder": "Поиск актива…",
       "derivedTitle": "Параметры по типу заявки",
       "derivedHint": "Приоритет, группа исполнителей и срок определяются типом заявки — их настраивает суперадмин.",
@@ -97,6 +97,22 @@
       "submit": "Создать заявку",
       "required": "Заполните поле"
     },
+    "detail": {
+      "changeStatus": "Статус",
+      "assignee": "Исполнитель",
+      "assigneePlaceholder": "Назначить исполнителя",
+      "description": "Описание",
+      "activity": "История",
+      "commentPlaceholder": "Добавить комментарий…",
+      "addComment": "Отправить",
+      "readonlyHint": "Изменение статуса и назначение доступно IT-специалисту и администратору.",
+      "act": {
+        "created": "Заявка создана",
+        "status": "Статус изменён: {{status}}",
+        "assigned": "Назначен исполнитель: {{name}}",
+        "unassigned": "Исполнитель снят"
+      }
+    },
     "unassigned": "—"
   },
   "dashboard": {
@@ -104,5 +120,32 @@
     "openTickets": "Открытые заявки",
     "equipment": "Единиц оборудования",
     "bookingsToday": "Броней сегодня"
+  },
+  "userCard": {
+    "role": "Роль",
+    "phone": "Телефон",
+    "office": "Кабинет",
+    "email": "E-mail",
+    "tickets": "Заявки пользователя",
+    "equipment": "Закреплённая техника"
+  },
+  "assetCard": {
+    "inventoryNo": "Инв. номер",
+    "type": "Тип",
+    "status": "Статус",
+    "location": "Расположение",
+    "warranty": "Гарантия до",
+    "owner": "Закреплён за",
+    "tickets": "Связанные заявки"
+  },
+  "equipmentType": {
+    "workstation": "АРМ",
+    "printer": "Принтер",
+    "multimedia": "Мультимедиа"
+  },
+  "equipmentStatus": {
+    "in_use": "В эксплуатации",
+    "repair": "В ремонте",
+    "decommissioned": "Списано"
   }
 }

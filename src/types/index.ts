@@ -8,6 +8,8 @@ export interface User {
   fullName: string;
   email: string;
   role: Role;
+  phone?: string;
+  office?: string; // кабинет
 }
 
 // ---- HelpDesk ----
@@ -39,6 +41,24 @@ export interface TicketTypeConfig {
   slaHours: number; // нормативный срок исполнения, часов
 }
 
+// Строка для таблицы/карточки — заявка с «развёрнутыми» именами (на бэке придут из JOIN).
+export type TicketRow = Ticket & {
+  requesterName: string;
+  assigneeName: string | null;
+};
+
+// Лента действий по заявке (на бэке — отдельная таблица истории/комментариев).
+export type ActivityKind = "created" | "status" | "assignee" | "comment";
+export interface ActivityEntry {
+  id: number;
+  kind: ActivityKind;
+  at: string; // ISO
+  author: string;
+  status?: TicketStatus; // для kind="status"
+  assignee?: string | null; // для kind="assignee"
+  comment?: string; // для kind="comment"
+}
+
 // ---- Инвентаризация ----
 export type EquipmentStatus = "in_use" | "repair" | "decommissioned";
 export type EquipmentType = "workstation" | "printer" | "multimedia";
@@ -52,6 +72,7 @@ export interface Equipment {
   status: EquipmentStatus;
   location: string;
   warrantyUntil: string | null; // ISO
+  assignedToId: number | null; // за кем закреплён (FK → users)
 }
 
 // ---- Бронирование ----

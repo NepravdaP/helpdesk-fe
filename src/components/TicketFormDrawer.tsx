@@ -2,37 +2,14 @@ import { Button, Drawer, Form, Input, Select, Space, Tag, Typography, theme } fr
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
 import { TICKET_TYPE_CONFIG } from "@/config/ticketTypes";
-import type { Ticket, TicketPriority, TicketType } from "@/types";
+import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
+import type { TicketPriority, TicketRow, TicketType } from "@/types";
 
 const PRIORITY_COLOR: Record<TicketPriority, string> = {
   low: "default",
   medium: "gold",
   high: "red",
 };
-
-// Списки — пока мок. Позже придут из API: пользователи из LDAP, активы из инвентаризации.
-const MOCK_USERS = [
-  { value: 1, label: "А. Иванов" },
-  { value: 2, label: "С. Орлов" },
-  { value: 3, label: "О. Кузнецова" },
-  { value: 4, label: "П. Сидоров" },
-  { value: 5, label: "Е. Петрова" },
-  { value: 6, label: "Д. Волков" },
-  { value: 7, label: "К. Смирнов" },
-  { value: 8, label: "М. Зайцева" },
-  { value: 9, label: "Н. Морозова" },
-];
-
-const MOCK_EQUIPMENT = [
-  { value: 21, label: "Принтер HP LaserJet — каб. 304" },
-  { value: 58, label: "Монитор Dell U2419 — АРМ-58" },
-  { value: 12, label: "Проектор Epson EB-2247U — переговорная" },
-  { value: 73, label: "Системный блок Lenovo M70 — АРМ-73" },
-  { value: 31, label: "МФУ Kyocera M2540 — каб. 210" },
-  { value: 64, label: "Ноутбук HP ProBook — АРМ-64" },
-  { value: 19, label: "Коммутатор Cisco SG350 — серверная" },
-  { value: 88, label: "ИБП APC Smart-UPS — серверная" },
-];
 
 interface FormValues {
   type: TicketType;
@@ -42,8 +19,8 @@ interface FormValues {
   equipmentId?: number;
 }
 
-// Строка для таблицы — с развёрнутым именем заявителя/исполнителя.
-export type NewTicket = Ticket & { requesterName: string; assigneeName: string | null };
+// Новая заявка для таблицы.
+export type NewTicket = TicketRow;
 
 export function TicketFormDrawer({
   open,
