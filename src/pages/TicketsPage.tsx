@@ -15,17 +15,20 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { formatDateTime } from "@/utils/format";
+import { useAuth } from "@/auth/AuthContext";
+import { MOCK_USERS } from "@/data/mock";
 import { TicketFormDrawer, type NewTicket } from "@/components/TicketFormDrawer";
+import { TicketDetailDrawer } from "@/components/TicketDetailDrawer";
+import { UserCardDrawer } from "@/components/UserCardDrawer";
+import { AssetCardDrawer } from "@/components/AssetCardDrawer";
 import type {
-  Ticket,
+  ActivityEntry,
   TicketGroup,
   TicketPriority,
+  TicketRow,
   TicketStatus,
   TicketType,
 } from "@/types";
-
-// Строка таблицы = заявка + «развёрнутые» имена (на бэке придут из JOIN).
-type TicketRow = Ticket & { requesterName: string; assigneeName: string | null };
 
 // Мок-данные. Позже заменим на GET /api/tickets.
 const INITIAL_TICKETS: TicketRow[] = [
@@ -36,6 +39,26 @@ const INITIAL_TICKETS: TicketRow[] = [
   { id: 138, title: "Установить ПО для бухгалтерии", description: "Установить и настроить бухгалтерское ПО на 2 АРМ.", type: "software", priority: "low", status: "closed", group: "software", createdById: 9, assignedToId: 4, equipmentId: null, createdAt: "2025-05-29T08:20:00Z", updatedAt: "2025-05-30T16:45:00Z", requesterName: "Н. Морозова", assigneeName: "П. Сидоров" },
   { id: 137, title: "Не работает сетевой диск", description: "Сетевой диск не монтируется после перезагрузки.", type: "repair", priority: "high", status: "closed", group: "network", createdById: 2, assignedToId: 1, equipmentId: null, createdAt: "2025-05-28T16:55:00Z", updatedAt: "2025-05-29T09:30:00Z", requesterName: "С. Орлов", assigneeName: "А. Иванов" },
 ];
+
+// Стартовая история для мок-заявок: создание + (если есть) назначение/смена статуса.
+function seedActivity(tickets: TicketRow[]): Record<number, ActivityEntry[]> {
+  const map: Record<number, ActivityEntry[]> = {};
+  for (const tk of tickets) {
+    const entries: ActivityEntry[] = [
+      { id: tk.id * 10 + 1, kind: "created", at: tk.createdAt, author: tk.requesterName },
+    ];
+    if (tk.assigneeName) {
+      entries.push({ id: tk.id * 10 + 2, kind: "assignee", at: tk.updatedAt, author: tk.assigneeName, assignee: tk.assigneeName });
+    }
+    if (tk.status !== "open") {
+      entries.push({ id: tk.id * 10 + 3, kind: "status", at: tk.updatedAt, author: tk.assigneeName ?? tk.requesterName, status: tk.status });
+    }
+    map[tk.id] = entries;
+  }
+  return map;
+}
+
+let activitySeq = 1;
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
   open: "blue",
@@ -77,7 +100,14 @@ const DEFAULT_VISIBLE: ColKey[] = [
 
 export function TicketsPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [rows, setRows] = useState<TicketRow[]>(INITIAL_TICKETS);
+  const [activity, setActivity] = useState<Record<number, ActivityEntry[]>>(() =>
+    seedActivity(INITIAL_TICKETS),
+  );
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = usePersistentState("", "");
   const [status, setStatus] = usePersistentState<TicketStatus | "all">("all", "all");
@@ -99,6 +129,56 @@ export function TicketsPage() {
       }),
     [rows, search, status, priority, type],
   );
+
+  const selected = rows.find((r) => r.id === selectedId) ?? null;
+
+  const pushActivity = (id: number, entry: Omit<ActivityEntry, "id" | "at" | "author">) => {
+    const full: ActivityEntry = {
+      id: Date.now() * 100 + activitySeq++,
+      at: new Date().toISOString(),
+      author: user.fullName,
+      ...entry,
+    };
+    setActivity((prev) => ({ ...prev, [id]: [...(prev[id] ?? []), full] }));
+  };
+
+  const touch = (id: number) =>
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, updatedAt: new Date().toISOString() } : r)));
+
+  const handleStatusChange = (id: number, next: TicketStatus) => {
+    setRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: next, updatedAt: new Date().toISOString() } : r)),
+    );
+    pushActivity(id, { kind: "status", status: next });
+  };
+
+  const handleAssigneeChange = (id: number, userId: number | null) => {
+    const u = MOCK_USERS.find((x) => x.value === userId) ?? null;
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? { ...r, assignedToId: userId, assigneeName: u?.label ?? null, updatedAt: new Date().toISOString() }
+          : r,
+      ),
+    );
+    pushActivity(id, { kind: "assignee", assignee: u?.label ?? null });
+  };
+
+  const handleAddComment = (id: number, text: string) => {
+    pushActivity(id, { kind: "comment", comment: text });
+    touch(id);
+  };
+
+  // Навигация между карточками. Открытие заявки выводит её на передний план,
+  // закрывая карточки пользователя/актива над ней; карточки пользователя и актива
+  // открываются поверх текущей.
+  const openTicket = (id: number) => {
+    setSelectedUserId(null);
+    setSelectedAssetId(null);
+    setSelectedId(id);
+  };
+  const openUser = (id: number) => setSelectedUserId(id);
+  const openAsset = (id: number) => setSelectedAssetId(id);
 
   // Определения всех столбцов; ниже отфильтруем по visible.
   const columnMap = useMemo<Record<ColKey, ColumnType<TicketRow>>>(() => {
@@ -243,6 +323,10 @@ export function TicketsPage() {
         rowKey="id"
         columns={columns}
         dataSource={data}
+        onRow={(record) => ({
+          onClick: () => setSelectedId(record.id),
+          style: { cursor: "pointer" },
+        })}
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
         scroll={{ x: "max-content" }}
         size="middle"
@@ -252,6 +336,33 @@ export function TicketsPage() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onCreate={(ticket: NewTicket) => setRows((prev) => [ticket, ...prev])}
+      />
+
+      <TicketDetailDrawer
+        ticket={selected}
+        activity={selected ? (activity[selected.id] ?? []) : []}
+        onClose={() => setSelectedId(null)}
+        onStatusChange={handleStatusChange}
+        onAssigneeChange={handleAssigneeChange}
+        onAddComment={handleAddComment}
+        onOpenUser={openUser}
+        onOpenAsset={openAsset}
+      />
+
+      <UserCardDrawer
+        userId={selectedUserId}
+        tickets={rows}
+        onClose={() => setSelectedUserId(null)}
+        onOpenTicket={openTicket}
+        onOpenAsset={openAsset}
+      />
+
+      <AssetCardDrawer
+        assetId={selectedAssetId}
+        tickets={rows}
+        onClose={() => setSelectedAssetId(null)}
+        onOpenTicket={openTicket}
+        onOpenUser={openUser}
       />
     </Space>
   );

@@ -87,7 +87,7 @@
       "descriptionPlaceholder": "Details: what happened, where, since when",
       "requester": "Requester",
       "requesterPlaceholder": "Search user…",
-      "equipment": "Asset (optional)",
+      "equipment": "Asset",
       "equipmentPlaceholder": "Search asset…",
       "derivedTitle": "Parameters by ticket type",
       "derivedHint": "Priority, assignee group and due time are determined by the ticket type — configured by the superadmin.",
@@ -97,6 +97,22 @@
       "submit": "Create ticket",
       "required": "This field is required"
     },
+    "detail": {
+      "changeStatus": "Status",
+      "assignee": "Assignee",
+      "assigneePlaceholder": "Assign to",
+      "description": "Description",
+      "activity": "Activity",
+      "commentPlaceholder": "Add a comment…",
+      "addComment": "Send",
+      "readonlyHint": "Changing status and assignment is available to IT specialists and administrators.",
+      "act": {
+        "created": "Ticket created",
+        "status": "Status changed: {{status}}",
+        "assigned": "Assigned to: {{name}}",
+        "unassigned": "Assignee removed"
+      }
+    },
     "unassigned": "—"
   },
   "dashboard": {
@@ -104,5 +120,32 @@
     "openTickets": "Open tickets",
     "equipment": "Equipment units",
     "bookingsToday": "Bookings today"
+  },
+  "userCard": {
+    "role": "Role",
+    "phone": "Phone",
+    "office": "Office",
+    "email": "E-mail",
+    "tickets": "User tickets",
+    "equipment": "Assigned equipment"
+  },
+  "assetCard": {
+    "inventoryNo": "Inventory no.",
+    "type": "Type",
+    "status": "Status",
+    "location": "Location",
+    "warranty": "Warranty until",
+    "owner": "Assigned to",
+    "tickets": "Related tickets"
+  },
+  "equipmentType": {
+    "workstation": "Workstation",
+    "printer": "Printer",
+    "multimedia": "Multimedia"
+  },
+  "equipmentStatus": {
+    "in_use": "In use",
+    "repair": "Under repair",
+    "decommissioned": "Decommissioned"
   }
 }
