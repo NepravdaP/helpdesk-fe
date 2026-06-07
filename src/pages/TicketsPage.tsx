@@ -191,56 +191,53 @@ export function TicketsPage() {
         </Button>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-        <Space size={8} wrap>
-          <Input.Search
-            allowClear
-            value={search}
-            placeholder={t("tickets.searchPlaceholder")}
-            style={{ width: 240 }}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Select
-            value={status}
-            style={{ width: 150 }}
-            onChange={setStatus}
-            options={[
-              { value: "all", label: `${t("tickets.filter.status")}: ${t("common.all")}` },
-              { value: "open", label: t("tickets.status.open") },
-              { value: "in_progress", label: t("tickets.status.in_progress") },
-              { value: "closed", label: t("tickets.status.closed") },
-            ]}
-          />
-          <Select
-            value={priority}
-            style={{ width: 150 }}
-            onChange={setPriority}
-            options={[
-              { value: "all", label: `${t("tickets.filter.priority")}: ${t("common.all")}` },
-              { value: "high", label: t("tickets.priority.high") },
-              { value: "medium", label: t("tickets.priority.medium") },
-              { value: "low", label: t("tickets.priority.low") },
-            ]}
-          />
-          <Select
-            value={type}
-            style={{ width: 160 }}
-            onChange={setType}
-            options={[
-              { value: "all", label: `${t("tickets.filter.type")}: ${t("common.all")}` },
-              { value: "repair", label: t("tickets.type.repair") },
-              { value: "replacement", label: t("tickets.type.replacement") },
-              { value: "software", label: t("tickets.type.software") },
-              { value: "access", label: t("tickets.type.access") },
-              { value: "other", label: t("tickets.type.other") },
-            ]}
-          />
-        </Space>
-
+      <Space size={8} wrap>
+        <Input.Search
+          allowClear
+          value={search}
+          placeholder={t("tickets.searchPlaceholder")}
+          style={{ width: 240 }}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Select
+          value={status}
+          style={{ width: 150 }}
+          onChange={setStatus}
+          options={[
+            { value: "all", label: `${t("tickets.filter.status")}: ${t("common.all")}` },
+            { value: "open", label: t("tickets.status.open") },
+            { value: "in_progress", label: t("tickets.status.in_progress") },
+            { value: "closed", label: t("tickets.status.closed") },
+          ]}
+        />
+        <Select
+          value={priority}
+          style={{ width: 150 }}
+          onChange={setPriority}
+          options={[
+            { value: "all", label: `${t("tickets.filter.priority")}: ${t("common.all")}` },
+            { value: "high", label: t("tickets.priority.high") },
+            { value: "medium", label: t("tickets.priority.medium") },
+            { value: "low", label: t("tickets.priority.low") },
+          ]}
+        />
+        <Select
+          value={type}
+          style={{ width: 160 }}
+          onChange={setType}
+          options={[
+            { value: "all", label: `${t("tickets.filter.type")}: ${t("common.all")}` },
+            { value: "repair", label: t("tickets.type.repair") },
+            { value: "replacement", label: t("tickets.type.replacement") },
+            { value: "software", label: t("tickets.type.software") },
+            { value: "access", label: t("tickets.type.access") },
+            { value: "other", label: t("tickets.type.other") },
+          ]}
+        />
         <Popover content={columnSettings} trigger="click" placement="bottomRight">
           <Button icon={<SettingOutlined />}>{t("tickets.columns")}</Button>
         </Popover>
-      </div>
+      </Space>
 
       <Table
         rowKey="id"
