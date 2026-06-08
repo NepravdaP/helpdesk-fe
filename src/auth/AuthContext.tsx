@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Role, User } from "@/types";
+import { USERS } from "@/data/mock";
 
 // Мок-авторизация на время разработки.
 // Реальный вход через LDAP подключим в конце — он заменит этот провайдер,
@@ -16,12 +17,7 @@ interface AuthContextValue {
   setRole: (role: Role) => void;
 }
 
-const MOCK_USER: User = {
-  id: 1,
-  fullName: "А. Иванов",
-  email: "a.ivanov@org.local",
-  role: "it",
-};
+const MOCK_USER: User = USERS[0];
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
