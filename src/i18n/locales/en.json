@@ -138,6 +138,11 @@
     "owner": "Assigned to",
     "tickets": "Related tickets"
   },
+  "assets": {
+    "searchPlaceholder": "Search by model or inventory no.…",
+    "col": { "model": "Model" },
+    "filter": { "type": "Type", "status": "Status" }
+  },
   "equipmentType": {
     "workstation": "Workstation",
     "printer": "Printer",
