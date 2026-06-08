@@ -1,7 +1,7 @@
 // Общие типы предметной области.
 // Держим их в одном месте — позже они должны совпасть со схемой Prisma на бэке.
 
-export type Role = "employee" | "it" | "admin";
+export type Role = "employee" | "it" | "admin" | "superadmin" | "room_admin";
 
 export interface User {
   id: number;

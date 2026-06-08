@@ -7,12 +7,14 @@ import {
   CalendarOutlined,
   TeamOutlined,
   BarChartOutlined,
+  SettingOutlined,
   BulbOutlined,
   BulbFilled,
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
+import { can, type Capability } from "@/auth/permissions";
 import { useThemeMode } from "@/theme/themeMode";
 import { palette } from "@/theme/colors";
 import type { Role } from "@/types";
@@ -24,18 +26,21 @@ interface NavItem {
   path: string;
   icon: React.ReactNode;
   labelKey: string;
-  group: "modules" | "admin";
-  allow: Role[];
+  group: "modules" | "management";
+  cap: Capability;
 }
 
 const NAV: NavItem[] = [
-  { key: "dashboard", path: "/dashboard", icon: <DashboardOutlined />, labelKey: "nav.dashboard", group: "modules", allow: ["employee", "it", "admin"] },
-  { key: "helpdesk", path: "/helpdesk", icon: <CustomerServiceOutlined />, labelKey: "nav.helpdesk", group: "modules", allow: ["employee", "it", "admin"] },
-  { key: "assets", path: "/assets", icon: <DesktopOutlined />, labelKey: "nav.assets", group: "modules", allow: ["employee", "it", "admin"] },
-  { key: "booking", path: "/booking", icon: <CalendarOutlined />, labelKey: "nav.booking", group: "modules", allow: ["employee", "it", "admin"] },
-  { key: "users", path: "/users", icon: <TeamOutlined />, labelKey: "nav.users", group: "admin", allow: ["admin"] },
-  { key: "reports", path: "/reports", icon: <BarChartOutlined />, labelKey: "nav.reports", group: "admin", allow: ["admin"] },
+  { key: "dashboard", path: "/dashboard", icon: <DashboardOutlined />, labelKey: "nav.dashboard", group: "modules", cap: "dashboard.own" },
+  { key: "helpdesk", path: "/helpdesk", icon: <CustomerServiceOutlined />, labelKey: "nav.helpdesk", group: "modules", cap: "tickets.create" },
+  { key: "assets", path: "/assets", icon: <DesktopOutlined />, labelKey: "nav.assets", group: "modules", cap: "assets.view" },
+  { key: "booking", path: "/booking", icon: <CalendarOutlined />, labelKey: "nav.booking", group: "modules", cap: "booking.view" },
+  { key: "users", path: "/users", icon: <TeamOutlined />, labelKey: "nav.users", group: "management", cap: "users.view" },
+  { key: "reports", path: "/reports", icon: <BarChartOutlined />, labelKey: "nav.reports", group: "management", cap: "reports.view" },
+  { key: "config", path: "/config", icon: <SettingOutlined />, labelKey: "nav.config", group: "management", cap: "config.manage" },
 ];
+
+const ROLE_OPTIONS: Role[] = ["employee", "it", "admin", "superadmin", "room_admin"];
 
 export function AppLayout() {
   const { t, i18n } = useTranslation();
@@ -52,19 +57,17 @@ export function AppLayout() {
     NAV.find((n) => location.pathname.startsWith(n.path))?.key ?? "dashboard";
 
   const menuItems = useMemo(() => {
-    const visible = NAV.filter((n) => n.allow.includes(user.role));
+    const visible = NAV.filter((n) => can(user.role, n.cap));
     const byGroup = (g: NavItem["group"]) =>
       visible
         .filter((n) => n.group === g)
         .map((n) => ({ key: n.key, icon: n.icon, label: t(n.labelKey) }));
 
-    const groups = [
-      { key: "g-modules", type: "group" as const, label: t("groups.modules"), children: byGroup("modules") },
-    ];
-    const adminChildren = byGroup("admin");
-    if (adminChildren.length) {
-      groups.push({ key: "g-admin", type: "group" as const, label: t("groups.admin"), children: adminChildren });
-    }
+    const groups: Array<{ key: string; type: "group"; label: string; children: ReturnType<typeof byGroup> }> = [];
+    const modules = byGroup("modules");
+    if (modules.length) groups.push({ key: "g-modules", type: "group", label: t("groups.modules"), children: modules });
+    const management = byGroup("management");
+    if (management.length) groups.push({ key: "g-management", type: "group", label: t("groups.management"), children: management });
     return groups;
   }, [user.role, t, i18n.language]);
 
@@ -123,13 +126,12 @@ export function AppLayout() {
             <Select<Role>
               size="small"
               value={user.role}
-              style={{ width: 160 }}
-              onChange={setRole}
-              options={[
-                { value: "employee", label: t("roles.employee") },
-                { value: "it", label: t("roles.it") },
-                { value: "admin", label: t("roles.admin") },
-              ]}
+              style={{ width: 190 }}
+              onChange={(r) => {
+                setRole(r);
+                navigate("/");
+              }}
+              options={ROLE_OPTIONS.map((r) => ({ value: r, label: t(`roles.${r}`) }))}
             />
           </Space>
 

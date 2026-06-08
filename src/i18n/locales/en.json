@@ -9,16 +9,19 @@
     "assets": "Assets",
     "booking": "Booking",
     "users": "Users",
-    "reports": "Reports"
+    "reports": "Reports",
+    "config": "Configuration"
   },
   "groups": {
     "modules": "Modules",
-    "admin": "Administration"
+    "management": "Management"
   },
   "roles": {
     "employee": "Employee",
     "it": "IT specialist",
-    "admin": "Administrator"
+    "admin": "Administrator",
+    "superadmin": "Superadmin",
+    "room_admin": "Room administrator"
   },
   "common": {
     "search": "Search",
@@ -106,6 +109,8 @@
       "commentPlaceholder": "Add a comment…",
       "addComment": "Send",
       "readonlyHint": "Changing status and assignment is available to IT specialists and administrators.",
+      "delete": "Delete ticket",
+      "deleteConfirm": "Delete this ticket?",
       "act": {
         "created": "Ticket created",
         "status": "Status changed: {{status}}",

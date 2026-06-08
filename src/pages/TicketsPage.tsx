@@ -15,6 +15,8 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { formatDateTime } from "@/utils/format";
+import { useAuth } from "@/auth/AuthContext";
+import { can } from "@/auth/permissions";
 import { useTickets } from "@/store/TicketsContext";
 import { useEntityCards } from "@/store/EntityCards";
 import { TicketFormDrawer, type NewTicket } from "@/components/TicketFormDrawer";
@@ -66,8 +68,13 @@ const DEFAULT_VISIBLE: ColKey[] = [
 
 export function TicketsPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const { tickets, createTicket } = useTickets();
   const { openTicket } = useEntityCards();
+
+  const viewAll = can(user.role, "tickets.viewAll");
+  const showFilters = can(user.role, "tickets.filter");
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = usePersistentState("", "");
   const [status, setStatus] = usePersistentState<TicketStatus | "all">("all", "all");
@@ -78,17 +85,17 @@ export function TicketsPage() {
     DEFAULT_VISIBLE,
   );
 
-  const data = useMemo(
-    () =>
-      tickets.filter((x) => {
-        const okSearch = x.title.toLowerCase().includes(search.toLowerCase());
-        const okStatus = status === "all" || x.status === status;
-        const okPriority = priority === "all" || x.priority === priority;
-        const okType = type === "all" || x.type === type;
-        return okSearch && okStatus && okPriority && okType;
-      }),
-    [tickets, search, status, priority, type],
-  );
+  const data = useMemo(() => {
+    const base = viewAll ? tickets : tickets.filter((x) => x.createdById === user.id);
+    if (!showFilters) return base;
+    return base.filter((x) => {
+      const okSearch = x.title.toLowerCase().includes(search.toLowerCase());
+      const okStatus = status === "all" || x.status === status;
+      const okPriority = priority === "all" || x.priority === priority;
+      const okType = type === "all" || x.type === type;
+      return okSearch && okStatus && okPriority && okType;
+    });
+  }, [tickets, viewAll, showFilters, user.id, search, status, priority, type]);
 
   // Определения всех столбцов; ниже отфильтруем по visible.
   const columnMap = useMemo<Record<ColKey, ColumnType<TicketRow>>>(() => {
@@ -180,7 +187,7 @@ export function TicketsPage() {
         </Button>
       </div>
 
-      <Space size={8} wrap>
+      <Space size={8} wrap style={{ display: showFilters ? undefined : "none" }}>
         <Input.Search
           allowClear
           value={search}
