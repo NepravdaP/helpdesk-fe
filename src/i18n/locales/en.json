@@ -8,6 +8,7 @@
     "helpdesk": "HelpDesk",
     "assets": "Assets",
     "booking": "Booking",
+    "directory": "Directory",
     "users": "Users",
     "reports": "Reports",
     "config": "Configuration"
@@ -154,6 +155,13 @@
       "email": "E-mail"
     },
     "filter": { "role": "Role" }
+  },
+  "directory": {
+    "tabAlphabet": "Alphabetical",
+    "tabOrg": "By organization",
+    "searchPlaceholder": "Search employee…",
+    "noDivision": "No department",
+    "noDepartment": "No unit"
   },
   "assetCard": {
     "inventoryNo": "Inventory no.",

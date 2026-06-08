@@ -25,16 +25,18 @@ const dash = (v?: string | null) => (v && v.length ? v : "—");
 
 export function UserCardDrawer({
   userId,
-  tickets,
+  tickets = [],
   onClose,
   onOpenTicket,
   onOpenAsset,
+  showRelated = true,
 }: {
   userId: number | null;
-  tickets: TicketRow[];
+  tickets?: TicketRow[];
   onClose: () => void;
-  onOpenTicket: (id: number) => void;
-  onOpenAsset: (id: number) => void;
+  onOpenTicket?: (id: number) => void;
+  onOpenAsset?: (id: number) => void;
+  showRelated?: boolean;
 }) {
   const { t } = useTranslation();
   const copyEmail = useCopyEmail();
@@ -92,43 +94,47 @@ export function UserCardDrawer({
             <Descriptions.Item label={t("userCard.orgTitle")}>{dash(user.orgTitle)}</Descriptions.Item>
           </Descriptions>
 
-          <Divider style={{ margin: "4px 0" }} orientation="left">
-            {t("userCard.tickets")} ({userTickets.length})
-          </Divider>
-          <List
-            size="small"
-            dataSource={userTickets}
-            locale={{ emptyText: t("common.empty") }}
-            renderItem={(tk) => (
-              <List.Item style={{ cursor: "pointer" }} onClick={() => onOpenTicket(tk.id)}>
-                <List.Item.Meta
-                  title={`№ ${tk.id} · ${tk.title}`}
-                  description={<Tag color={STATUS_COLOR[tk.status]}>{t(`tickets.status.${tk.status}`)}</Tag>}
-                />
-              </List.Item>
-            )}
-          />
+          {showRelated && (
+            <>
+              <Divider style={{ margin: "4px 0" }} orientation="left">
+                {t("userCard.tickets")} ({userTickets.length})
+              </Divider>
+              <List
+                size="small"
+                dataSource={userTickets}
+                locale={{ emptyText: t("common.empty") }}
+                renderItem={(tk) => (
+                  <List.Item style={{ cursor: "pointer" }} onClick={() => onOpenTicket?.(tk.id)}>
+                    <List.Item.Meta
+                      title={`№ ${tk.id} · ${tk.title}`}
+                      description={<Tag color={STATUS_COLOR[tk.status]}>{t(`tickets.status.${tk.status}`)}</Tag>}
+                    />
+                  </List.Item>
+                )}
+              />
 
-          <Divider style={{ margin: "4px 0" }} orientation="left">
-            {t("userCard.equipment")} ({userEquipment.length})
-          </Divider>
-          <List
-            size="small"
-            dataSource={userEquipment}
-            locale={{ emptyText: t("common.empty") }}
-            renderItem={(eq) => (
-              <List.Item style={{ cursor: "pointer" }} onClick={() => onOpenAsset(eq.id)}>
-                <List.Item.Meta
-                  title={eq.model}
-                  description={
-                    <Typography.Text type="secondary">
-                      {eq.inventoryNo} · {eq.location}
-                    </Typography.Text>
-                  }
-                />
-              </List.Item>
-            )}
-          />
+              <Divider style={{ margin: "4px 0" }} orientation="left">
+                {t("userCard.equipment")} ({userEquipment.length})
+              </Divider>
+              <List
+                size="small"
+                dataSource={userEquipment}
+                locale={{ emptyText: t("common.empty") }}
+                renderItem={(eq) => (
+                  <List.Item style={{ cursor: "pointer" }} onClick={() => onOpenAsset?.(eq.id)}>
+                    <List.Item.Meta
+                      title={eq.model}
+                      description={
+                        <Typography.Text type="secondary">
+                          {eq.inventoryNo} · {eq.location}
+                        </Typography.Text>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            </>
+          )}
         </Space>
       )}
     </Drawer>

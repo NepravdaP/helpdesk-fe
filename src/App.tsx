@@ -17,6 +17,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { TicketsPage } from "@/pages/TicketsPage";
 import { AssetsPage } from "@/pages/AssetsPage";
 import { UsersPage } from "@/pages/UsersPage";
+import { DirectoryPage } from "@/pages/DirectoryPage";
 import { BookingPage, ReportsPage, ConfigPage } from "@/pages/Placeholders";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
@@ -79,6 +80,14 @@ export default function App() {
                   element={
                     <RoleGuard cap="booking.view">
                       <BookingPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="directory"
+                  element={
+                    <RoleGuard cap="directory.view">
+                      <DirectoryPage />
                     </RoleGuard>
                   }
                 />

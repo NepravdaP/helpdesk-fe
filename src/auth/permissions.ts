@@ -17,6 +17,7 @@ export type Capability =
   | "assets.delete"
   | "users.view"
   | "users.edit"
+  | "directory.view" // справочник сотрудников (доступен всем)
   | "dashboard.own" // дашборд по своим заявкам
   | "dashboard.full" // полный дашборд
   | "reports.view"
@@ -35,6 +36,7 @@ export const ALL_CAPABILITIES: Capability[] = [
   "assets.delete",
   "users.view",
   "users.edit",
+  "directory.view",
   "dashboard.own",
   "dashboard.full",
   "reports.view",
@@ -51,22 +53,23 @@ const IT: Capability[] = [
   "assets.edit",
   "users.view",
   "users.edit",
+  "directory.view",
   "dashboard.own",
 ];
 
 const ADMIN: Capability[] = [...IT, "tickets.delete", "assets.delete", "reports.view", "dashboard.full"];
 
 export const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
-  // Сотрудник: только свои заявки (создание) и бронирование.
-  employee: ["tickets.create", "booking.view"],
+  // Сотрудник: только свои заявки (создание), бронирование и справочник.
+  employee: ["tickets.create", "booking.view", "directory.view"],
   // IT-специалист: заявки с фильтрами и редактированием, активы, пользователи, бронь, дашборд по своим.
   it: IT,
   // Администратор: всё, что у IT, плюс отчёты, полный дашборд, удаление заявок и техники.
   admin: ADMIN,
   // Суперадминистратор: всё, включая конфигурацию типов и статусов.
   superadmin: ALL_CAPABILITIES,
-  // Администратор залов: создание заявок, бронь и администрирование броней.
-  room_admin: ["tickets.create", "booking.view", "booking.manage"],
+  // Администратор залов: создание заявок, бронь, администрирование броней, справочник.
+  room_admin: ["tickets.create", "booking.view", "booking.manage", "directory.view"],
 };
 
 export function can(role: Role, capability: Capability): boolean {
