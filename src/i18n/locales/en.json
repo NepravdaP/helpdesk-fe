@@ -8,6 +8,7 @@
     "helpdesk": "HelpDesk",
     "assets": "Assets",
     "booking": "Booking",
+    "directory": "Directory",
     "users": "Users",
     "reports": "Reports",
     "config": "Configuration"
@@ -29,6 +30,8 @@
     "cancel": "Cancel",
     "all": "All",
     "language": "Language",
+    "copied": "E-mail copied to clipboard",
+    "copyFailed": "Failed to copy",
     "themeLight": "Light theme",
     "themeDark": "Dark theme",
     "logout": "Log out",
@@ -127,12 +130,38 @@
     "bookingsToday": "Bookings today"
   },
   "userCard": {
+    "login": "Login",
     "role": "Role",
-    "phone": "Phone",
-    "office": "Office",
+    "innerPhone": "Internal phone",
+    "mobilePhone": "Mobile phone",
     "email": "E-mail",
+    "room": "Office",
+    "contacts": "Contacts",
+    "org": "Organization",
+    "orgName": "Organization",
+    "orgDepartment": "Department",
+    "orgDivision": "Division",
+    "orgTitle": "Title",
     "tickets": "User tickets",
     "equipment": "Assigned equipment"
+  },
+  "users": {
+    "searchPlaceholder": "Search by name, login, department…",
+    "col": {
+      "fullName": "Full name",
+      "innerPhone": "Internal phone",
+      "room": "Office",
+      "department": "Department",
+      "email": "E-mail"
+    },
+    "filter": { "role": "Role" }
+  },
+  "directory": {
+    "tabAlphabet": "Alphabetical",
+    "tabOrg": "By organization",
+    "searchPlaceholder": "Search employee…",
+    "noDivision": "No department",
+    "noDepartment": "No unit"
   },
   "assetCard": {
     "inventoryNo": "Inventory no.",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, App as AntApp } from "antd";
 import type { Locale } from "antd/es/locale";
 import ruRU from "antd/locale/ru_RU";
 import enUS from "antd/locale/en_US";
@@ -16,7 +16,9 @@ import { RoleGuard, HomeRedirect } from "@/components/RoleGuard";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { TicketsPage } from "@/pages/TicketsPage";
 import { AssetsPage } from "@/pages/AssetsPage";
-import { BookingPage, UsersPage, ReportsPage, ConfigPage } from "@/pages/Placeholders";
+import { UsersPage } from "@/pages/UsersPage";
+import { DirectoryPage } from "@/pages/DirectoryPage";
+import { BookingPage, ReportsPage, ConfigPage } from "@/pages/Placeholders";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
 const ANTD_LOCALES: Record<string, Locale> = { ru: ruRU, en: enUS };
@@ -43,8 +45,9 @@ export default function App() {
   return (
     <ThemeModeContext.Provider value={themeMode}>
       <ConfigProvider theme={getTheme(mode)} locale={antdLocale}>
-        <TicketsProvider>
-          <EntityCardsProvider>
+        <AntApp>
+          <TicketsProvider>
+            <EntityCardsProvider>
             <Routes>
               <Route element={<AppLayout />}>
                 <Route index element={<HomeRedirect />} />
@@ -81,6 +84,14 @@ export default function App() {
                   }
                 />
                 <Route
+                  path="directory"
+                  element={
+                    <RoleGuard cap="directory.view">
+                      <DirectoryPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
                   path="users"
                   element={
                     <RoleGuard cap="users.view">
@@ -108,6 +119,7 @@ export default function App() {
             </Routes>
           </EntityCardsProvider>
         </TicketsProvider>
+        </AntApp>
       </ConfigProvider>
     </ThemeModeContext.Provider>
   );

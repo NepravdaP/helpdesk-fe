@@ -5,11 +5,21 @@ export type Role = "employee" | "it" | "admin" | "superadmin" | "room_admin";
 
 export interface User {
   id: number;
-  fullName: string;
-  email: string;
+  userName: string; // логин (sAMAccountName/UPN из AD), уникальный
   role: Role;
-  phone?: string;
-  office?: string; // кабинет
+  firstName: string;
+  lastName: string;
+  middleName?: string; // отчество
+  fullName: string; // ФИО (displayName из AD): «Фамилия Имя Отчество»
+  email: string;
+  innerPhone?: string; // внутренний телефон
+  mobilePhone?: string;
+  room?: string; // кабинет
+  avatarUrl?: string | null;
+  orgName?: string; // организация (company)
+  orgDepartment?: string; // отдел (department)
+  orgDivision?: string; // подразделение (division)
+  orgTitle?: string; // должность (title)
 }
 
 // ---- HelpDesk ----
