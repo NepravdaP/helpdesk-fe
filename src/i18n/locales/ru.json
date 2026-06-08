@@ -29,6 +29,8 @@
     "cancel": "Отмена",
     "all": "Все",
     "language": "Язык",
+    "copied": "E-mail скопирован в буфер обмена",
+    "copyFailed": "Не удалось скопировать",
     "themeLight": "Светлая тема",
     "themeDark": "Тёмная тема",
     "logout": "Выйти",
@@ -127,12 +129,31 @@
     "bookingsToday": "Броней сегодня"
   },
   "userCard": {
+    "login": "Логин",
     "role": "Роль",
-    "phone": "Телефон",
-    "office": "Кабинет",
+    "innerPhone": "Внутренний телефон",
+    "mobilePhone": "Мобильный телефон",
     "email": "E-mail",
+    "room": "Кабинет",
+    "contacts": "Контакты",
+    "org": "Организация",
+    "orgName": "Организация",
+    "orgDepartment": "Отдел",
+    "orgDivision": "Департамент",
+    "orgTitle": "Должность",
     "tickets": "Заявки пользователя",
     "equipment": "Закреплённая техника"
+  },
+  "users": {
+    "searchPlaceholder": "Поиск по ФИО, логину, отделу…",
+    "col": {
+      "fullName": "Полное имя",
+      "innerPhone": "Внутренний телефон",
+      "room": "Кабинет",
+      "department": "Департамент/Отдел",
+      "email": "E-mail"
+    },
+    "filter": { "role": "Роль" }
   },
   "assetCard": {
     "inventoryNo": "Инв. номер",
