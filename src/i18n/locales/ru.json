@@ -138,6 +138,11 @@
     "owner": "Закреплён за",
     "tickets": "Связанные заявки"
   },
+  "assets": {
+    "searchPlaceholder": "Поиск по модели или инв. номеру…",
+    "col": { "model": "Модель" },
+    "filter": { "type": "Тип", "status": "Статус" }
+  },
   "equipmentType": {
     "workstation": "АРМ",
     "printer": "Принтер",

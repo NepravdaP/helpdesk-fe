@@ -9,11 +9,14 @@ import { useTranslation } from "react-i18next";
 import { getTheme, type ThemeMode } from "@/theme/theme";
 import { ThemeModeContext } from "@/theme/themeMode";
 import { usePersistentState } from "@/hooks/usePersistentState";
+import { TicketsProvider } from "@/store/TicketsContext";
+import { EntityCardsProvider } from "@/store/EntityCards";
 import { AppLayout } from "@/components/AppLayout";
 import { RoleGuard, HomeRedirect } from "@/components/RoleGuard";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { TicketsPage } from "@/pages/TicketsPage";
-import { AssetsPage, BookingPage, UsersPage, ReportsPage } from "@/pages/Placeholders";
+import { AssetsPage } from "@/pages/AssetsPage";
+import { BookingPage, UsersPage, ReportsPage } from "@/pages/Placeholders";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
 const ANTD_LOCALES: Record<string, Locale> = { ru: ruRU, en: enUS };
@@ -40,31 +43,35 @@ export default function App() {
   return (
     <ThemeModeContext.Provider value={themeMode}>
       <ConfigProvider theme={getTheme(mode)} locale={antdLocale}>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route index element={<HomeRedirect />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="helpdesk" element={<TicketsPage />} />
-            <Route path="assets" element={<AssetsPage />} />
-            <Route path="booking" element={<BookingPage />} />
-            <Route
-              path="users"
-              element={
-                <RoleGuard allow={["admin"]}>
-                  <UsersPage />
-                </RoleGuard>
-              }
-            />
-            <Route
-              path="reports"
-              element={
-                <RoleGuard allow={["admin"]}>
-                  <ReportsPage />
-                </RoleGuard>
-              }
-            />
-          </Route>
-        </Routes>
+        <TicketsProvider>
+          <EntityCardsProvider>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route index element={<HomeRedirect />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="helpdesk" element={<TicketsPage />} />
+                <Route path="assets" element={<AssetsPage />} />
+                <Route path="booking" element={<BookingPage />} />
+                <Route
+                  path="users"
+                  element={
+                    <RoleGuard allow={["admin"]}>
+                      <UsersPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="reports"
+                  element={
+                    <RoleGuard allow={["admin"]}>
+                      <ReportsPage />
+                    </RoleGuard>
+                  }
+                />
+              </Route>
+            </Routes>
+          </EntityCardsProvider>
+        </TicketsProvider>
       </ConfigProvider>
     </ThemeModeContext.Provider>
   );
