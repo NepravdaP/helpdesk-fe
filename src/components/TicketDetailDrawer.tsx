@@ -6,14 +6,17 @@ import {
   Divider,
   Drawer,
   Input,
+  Popconfirm,
   Select,
   Space,
   Tag,
   Timeline,
   Typography,
 } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
+import { can } from "@/auth/permissions";
 import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
 import { formatDateTime } from "@/utils/format";
 import type {
@@ -49,6 +52,7 @@ export function TicketDetailDrawer({
   onAddComment,
   onOpenUser,
   onOpenAsset,
+  onDelete,
 }: {
   ticket: TicketRow | null;
   activity: ActivityEntry[];
@@ -58,12 +62,14 @@ export function TicketDetailDrawer({
   onAddComment: (id: number, text: string) => void;
   onOpenUser: (id: number) => void;
   onOpenAsset: (id: number) => void;
+  onDelete: (id: number) => void;
 }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [comment, setComment] = useState("");
 
-  const canEdit = user.role === "it" || user.role === "admin";
+  const canEdit = can(user.role, "tickets.edit");
+  const canDelete = can(user.role, "tickets.delete");
   const lang = i18n.language;
 
   // Прочерк — только когда актив не назначен. Если назначен, но его нет
@@ -101,6 +107,19 @@ export function TicketDetailDrawer({
       open={ticket != null}
       onClose={onClose}
       destroyOnClose
+      extra={
+        ticket && canDelete ? (
+          <Popconfirm
+            title={t("tickets.detail.deleteConfirm")}
+            okButtonProps={{ danger: true }}
+            onConfirm={() => onDelete(ticket.id)}
+          >
+            <Button danger type="text" icon={<DeleteOutlined />}>
+              {t("tickets.detail.delete")}
+            </Button>
+          </Popconfirm>
+        ) : undefined
+      }
     >
       {ticket && (
         <Space direction="vertical" size={16} style={{ width: "100%" }}>

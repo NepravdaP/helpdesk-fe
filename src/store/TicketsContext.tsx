@@ -30,6 +30,7 @@ interface TicketsContextValue {
   setStatus: (id: number, status: TicketStatus) => void;
   setAssignee: (id: number, userId: number | null) => void;
   addComment: (id: number, text: string) => void;
+  deleteTicket: (id: number) => void;
 }
 
 const TicketsContext = createContext<TicketsContextValue | null>(null);
@@ -86,6 +87,14 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
       addComment: (id, text) => {
         push(id, { kind: "comment", comment: text });
         touch(id);
+      },
+      deleteTicket: (id) => {
+        setTickets((prev) => prev.filter((r) => r.id !== id));
+        setActivity((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
       },
     };
   }, [tickets, activity, user.fullName]);

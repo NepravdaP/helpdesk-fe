@@ -16,7 +16,7 @@ import { RoleGuard, HomeRedirect } from "@/components/RoleGuard";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { TicketsPage } from "@/pages/TicketsPage";
 import { AssetsPage } from "@/pages/AssetsPage";
-import { BookingPage, UsersPage, ReportsPage } from "@/pages/Placeholders";
+import { BookingPage, UsersPage, ReportsPage, ConfigPage } from "@/pages/Placeholders";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
 const ANTD_LOCALES: Record<string, Locale> = { ru: ruRU, en: enUS };
@@ -48,14 +48,42 @@ export default function App() {
             <Routes>
               <Route element={<AppLayout />}>
                 <Route index element={<HomeRedirect />} />
-                <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="helpdesk" element={<TicketsPage />} />
-                <Route path="assets" element={<AssetsPage />} />
-                <Route path="booking" element={<BookingPage />} />
+                <Route
+                  path="dashboard"
+                  element={
+                    <RoleGuard cap="dashboard.own">
+                      <DashboardPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="helpdesk"
+                  element={
+                    <RoleGuard cap="tickets.create">
+                      <TicketsPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="assets"
+                  element={
+                    <RoleGuard cap="assets.view">
+                      <AssetsPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="booking"
+                  element={
+                    <RoleGuard cap="booking.view">
+                      <BookingPage />
+                    </RoleGuard>
+                  }
+                />
                 <Route
                   path="users"
                   element={
-                    <RoleGuard allow={["admin"]}>
+                    <RoleGuard cap="users.view">
                       <UsersPage />
                     </RoleGuard>
                   }
@@ -63,8 +91,16 @@ export default function App() {
                 <Route
                   path="reports"
                   element={
-                    <RoleGuard allow={["admin"]}>
+                    <RoleGuard cap="reports.view">
                       <ReportsPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="config"
+                  element={
+                    <RoleGuard cap="config.manage">
+                      <ConfigPage />
                     </RoleGuard>
                   }
                 />

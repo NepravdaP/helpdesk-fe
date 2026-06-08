@@ -1,18 +1,18 @@
 import { Navigate } from "react-router-dom";
 import { Result } from "antd";
 import { useAuth } from "@/auth/AuthContext";
-import type { Role } from "@/types";
+import { can, type Capability } from "@/auth/permissions";
 
-// Защита роута по ролям. Если роль не разрешена — показываем 403.
+// Защита роута по способности (capability). Если её нет — 403.
 export function RoleGuard({
-  allow,
+  cap,
   children,
 }: {
-  allow: Role[];
+  cap: Capability;
   children: React.ReactNode;
 }) {
   const { user } = useAuth();
-  if (!allow.includes(user.role)) {
+  if (!can(user.role, cap)) {
     return (
       <Result
         status="403"
@@ -24,7 +24,9 @@ export function RoleGuard({
   return <>{children}</>;
 }
 
-// Куда отправлять с корня "/" — зависит от роли (заглушка-редирект).
+// Стартовая страница зависит от роли: у кого есть дашборд — на дашборд,
+// у остальных (сотрудник, админ залов) — на заявки.
 export function HomeRedirect() {
-  return <Navigate to="/dashboard" replace />;
+  const { user } = useAuth();
+  return <Navigate to={can(user.role, "dashboard.own") ? "/dashboard" : "/helpdesk"} replace />;
 }

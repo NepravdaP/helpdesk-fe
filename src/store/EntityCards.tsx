@@ -16,7 +16,7 @@ interface EntityCardsValue {
 const EntityCardsContext = createContext<EntityCardsValue | null>(null);
 
 export function EntityCardsProvider({ children }: { children: ReactNode }) {
-  const { tickets, activity, setStatus, setAssignee, addComment } = useTickets();
+  const { tickets, activity, setStatus, setAssignee, addComment, deleteTicket } = useTickets();
   const [ticketId, setTicketId] = useState<number | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [assetId, setAssetId] = useState<number | null>(null);
@@ -46,6 +46,10 @@ export function EntityCardsProvider({ children }: { children: ReactNode }) {
         onAddComment={addComment}
         onOpenUser={openUser}
         onOpenAsset={openAsset}
+        onDelete={(id) => {
+          deleteTicket(id);
+          setTicketId(null);
+        }}
       />
       <UserCardDrawer
         userId={userId}
