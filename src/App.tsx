@@ -10,6 +10,7 @@ import { getTheme, type ThemeMode } from "@/theme/theme";
 import { ThemeModeContext } from "@/theme/themeMode";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { TicketsProvider } from "@/store/TicketsContext";
+import { AssetsProvider } from "@/store/AssetsContext";
 import { EntityCardsProvider } from "@/store/EntityCards";
 import { AppLayout } from "@/components/AppLayout";
 import { RoleGuard, HomeRedirect } from "@/components/RoleGuard";
@@ -47,7 +48,8 @@ export default function App() {
       <ConfigProvider theme={getTheme(mode)} locale={antdLocale}>
         <AntApp>
           <TicketsProvider>
-            <EntityCardsProvider>
+            <AssetsProvider>
+              <EntityCardsProvider>
             <Routes>
               <Route element={<AppLayout />}>
                 <Route index element={<HomeRedirect />} />
@@ -117,8 +119,9 @@ export default function App() {
                 />
               </Route>
             </Routes>
-          </EntityCardsProvider>
-        </TicketsProvider>
+              </EntityCardsProvider>
+            </AssetsProvider>
+          </TicketsProvider>
         </AntApp>
       </ConfigProvider>
     </ThemeModeContext.Provider>

@@ -10,7 +10,8 @@ import {
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { USERS, EQUIPMENT } from "@/data/mock";
+import { USERS } from "@/data/mock";
+import { useAssets } from "@/store/AssetsContext";
 import { useCopyEmail } from "@/hooks/useCopyEmail";
 import { palette } from "@/theme/colors";
 import type { TicketRow, TicketStatus } from "@/types";
@@ -40,9 +41,13 @@ export function UserCardDrawer({
 }) {
   const { t } = useTranslation();
   const copyEmail = useCopyEmail();
+  const { assets } = useAssets();
   const user = USERS.find((u) => u.id === userId) ?? null;
   const userTickets = tickets.filter((tk) => tk.createdById === userId);
-  const userEquipment = EQUIPMENT.filter((e) => e.assignedToId === userId);
+  const userEquipment = assets.filter((e) => e.assignedToId === userId);
+
+  const initials =
+    user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";
 
   const initials =
     user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";

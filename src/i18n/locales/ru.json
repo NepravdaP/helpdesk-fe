@@ -28,6 +28,9 @@
     "search": "Поиск",
     "create": "Создать",
     "cancel": "Отмена",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "columns": "Столбцы",
     "all": "Все",
     "language": "Язык",
     "copied": "E-mail скопирован в буфер обмена",
@@ -174,8 +177,24 @@
   },
   "assets": {
     "searchPlaceholder": "Поиск по модели или инв. номеру…",
-    "col": { "model": "Модель" },
-    "filter": { "type": "Тип", "status": "Статус" }
+    "col": { "model": "Наименование" },
+    "filter": { "type": "Тип", "status": "Статус" },
+    "add": "Добавить актив",
+    "deleteConfirm": "Удалить этот актив?",
+    "form": {
+      "create": "Новый актив",
+      "edit": "Редактирование актива",
+      "submit": "Сохранить",
+      "required": "Заполните поле",
+      "typePlaceholder": "Выберите тип",
+      "statusPlaceholder": "Выберите статус",
+      "assigneePlaceholder": "Поиск пользователя…",
+      "warrantyPlaceholder": "Выберите дату"
+    }
+  },
+  "assetAttr": {
+    "macAddress": "MAC-адрес",
+    "ipAddress": "IP-адрес"
   },
   "equipmentType": {
     "workstation": "АРМ",

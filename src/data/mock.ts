@@ -15,14 +15,14 @@ export const USERS: User[] = [
 ];
 
 export const EQUIPMENT: Equipment[] = [
-  { id: 21, inventoryNo: "ПР-000021", type: "printer", model: "Принтер HP LaserJet M404", serialNumber: "CNB1F2A304", status: "in_use", location: "каб. 304", warrantyUntil: "2026-09-01", assignedToId: 5 },
-  { id: 58, inventoryNo: "АРМ-000058", type: "workstation", model: "Монитор Dell U2419", serialNumber: "DLU2419-058", status: "repair", location: "АРМ-58", warrantyUntil: "2025-12-15", assignedToId: 7 },
-  { id: 12, inventoryNo: "ММ-000012", type: "multimedia", model: "Проектор Epson EB-2247U", serialNumber: "EPB2247-012", status: "in_use", location: "переговорная", warrantyUntil: null, assignedToId: null },
-  { id: 73, inventoryNo: "АРМ-000073", type: "workstation", model: "Системный блок Lenovo M70", serialNumber: "LNVM70-073", status: "in_use", location: "АРМ-73", warrantyUntil: "2027-03-01", assignedToId: 6 },
-  { id: 31, inventoryNo: "ПР-000031", type: "printer", model: "МФУ Kyocera M2540", serialNumber: "KYM2540-031", status: "in_use", location: "каб. 210", warrantyUntil: "2026-05-20", assignedToId: 3 },
-  { id: 64, inventoryNo: "АРМ-000064", type: "workstation", model: "Ноутбук HP ProBook 450", serialNumber: "HPPB450-064", status: "in_use", location: "АРМ-64", warrantyUntil: "2026-11-10", assignedToId: 1 },
-  { id: 19, inventoryNo: "АРМ-000019", type: "workstation", model: "Системный блок Dell OptiPlex", serialNumber: "DLOPT-019", status: "in_use", location: "АРМ-19", warrantyUntil: "2027-01-01", assignedToId: 2 },
-  { id: 88, inventoryNo: "ММ-000088", type: "multimedia", model: "ТВ-панель Samsung 55\"", serialNumber: "SMS55-088", status: "decommissioned", location: "склад", warrantyUntil: null, assignedToId: null },
+  { id: 21, inventoryNo: "ПР-000021", type: "printer", model: "Принтер HP LaserJet M404", serialNumber: "CNB1F2A304", status: "in_use", location: "каб. 304", warrantyUntil: "2026-09-01", assignedToId: 5, attributes: { macAddress: "00:1B:44:11:3A:B7", ipAddress: "10.0.30.21" } },
+  { id: 58, inventoryNo: "ММ-000058", type: "multimedia", model: "Монитор Dell U2419", serialNumber: "DLU2419-058", status: "repair", location: "АРМ-58", warrantyUntil: "2025-12-15", assignedToId: 7, attributes: {} },
+  { id: 12, inventoryNo: "ММ-000012", type: "multimedia", model: "Проектор Epson EB-2247U", serialNumber: "EPB2247-012", status: "in_use", location: "переговорная", warrantyUntil: null, assignedToId: null, attributes: {} },
+  { id: 73, inventoryNo: "АРМ-000073", type: "workstation", model: "Системный блок Lenovo M70", serialNumber: "LNVM70-073", status: "in_use", location: "АРМ-73", warrantyUntil: "2027-03-01", assignedToId: 6, attributes: { ipAddress: "10.0.73.10" } },
+  { id: 31, inventoryNo: "ПР-000031", type: "printer", model: "МФУ Kyocera M2540", serialNumber: "KYM2540-031", status: "in_use", location: "каб. 210", warrantyUntil: "2026-05-20", assignedToId: 3, attributes: { macAddress: "00:1B:44:11:3A:C2", ipAddress: "10.0.21.31" } },
+  { id: 64, inventoryNo: "АРМ-000064", type: "workstation", model: "Ноутбук HP ProBook 450", serialNumber: "HPPB450-064", status: "in_use", location: "АРМ-64", warrantyUntil: "2026-11-10", assignedToId: 1, attributes: { ipAddress: "10.0.64.12" } },
+  { id: 19, inventoryNo: "АРМ-000019", type: "workstation", model: "Системный блок Dell OptiPlex", serialNumber: "DLOPT-019", status: "in_use", location: "АРМ-19", warrantyUntil: "2027-01-01", assignedToId: 2, attributes: { ipAddress: "10.0.19.5" } },
+  { id: 88, inventoryNo: "ММ-000088", type: "multimedia", model: "ТВ-панель Samsung 55\"", serialNumber: "SMS55-088", status: "decommissioned", location: "склад", warrantyUntil: null, assignedToId: null, attributes: {} },
 ];
 
 // Опции для выпадающих списков (форма создания, назначение исполнителя и т.п.).

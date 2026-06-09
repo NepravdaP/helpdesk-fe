@@ -1,28 +1,34 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useTickets } from "./TicketsContext";
+import { useAssets } from "./AssetsContext";
 import { TicketDetailDrawer } from "@/components/TicketDetailDrawer";
 import { UserCardDrawer } from "@/components/UserCardDrawer";
 import { AssetCardDrawer } from "@/components/AssetCardDrawer";
+import { AssetFormDrawer } from "@/components/AssetFormDrawer";
+import type { Equipment } from "@/types";
 
-// Общие карточки-сущности. Любой экран может открыть карточку заявки,
-// пользователя или актива через useEntityCards(); сами Drawer'ы рендерятся
-// один раз здесь, поверх всего приложения.
+// Общие карточки-сущности + форма актива. Любой экран может открыть карточку
+// заявки/пользователя/актива и форму актива через useEntityCards();
+// сами Drawer'ы рендерятся один раз здесь, поверх всего приложения.
 interface EntityCardsValue {
   openTicket: (id: number) => void;
   openUser: (id: number) => void;
   openAsset: (id: number) => void;
+  openAssetForm: (asset: Equipment | null) => void;
 }
 
 const EntityCardsContext = createContext<EntityCardsValue | null>(null);
 
 export function EntityCardsProvider({ children }: { children: ReactNode }) {
   const { tickets, activity, setStatus, setAssignee, addComment, deleteTicket } = useTickets();
+  const { assets, createAsset, updateAsset, deleteAsset } = useAssets();
+
   const [ticketId, setTicketId] = useState<number | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [assetId, setAssetId] = useState<number | null>(null);
+  const [assetFormOpen, setAssetFormOpen] = useState(false);
+  const [assetEditing, setAssetEditing] = useState<Equipment | null>(null);
 
-  // Открытие заявки выводит её на передний план, закрывая карточки над ней;
-  // карточки пользователя/актива открываются поверх текущей.
   const openTicket = (id: number) => {
     setUserId(null);
     setAssetId(null);
@@ -30,16 +36,21 @@ export function EntityCardsProvider({ children }: { children: ReactNode }) {
   };
   const openUser = (id: number) => setUserId(id);
   const openAsset = (id: number) => setAssetId(id);
+  const openAssetForm = (asset: Equipment | null) => {
+    setAssetEditing(asset);
+    setAssetFormOpen(true);
+  };
 
-  const selected = tickets.find((t) => t.id === ticketId) ?? null;
+  const selectedTicket = tickets.find((t) => t.id === ticketId) ?? null;
+  const selectedAsset = assets.find((a) => a.id === assetId) ?? null;
 
   return (
-    <EntityCardsContext.Provider value={{ openTicket, openUser, openAsset }}>
+    <EntityCardsContext.Provider value={{ openTicket, openUser, openAsset, openAssetForm }}>
       {children}
 
       <TicketDetailDrawer
-        ticket={selected}
-        activity={selected ? (activity[selected.id] ?? []) : []}
+        ticket={selectedTicket}
+        activity={selectedTicket ? (activity[selectedTicket.id] ?? []) : []}
         onClose={() => setTicketId(null)}
         onStatusChange={setStatus}
         onAssigneeChange={setAssignee}
@@ -64,6 +75,20 @@ export function EntityCardsProvider({ children }: { children: ReactNode }) {
         onClose={() => setAssetId(null)}
         onOpenTicket={openTicket}
         onOpenUser={openUser}
+        onEdit={() => selectedAsset && openAssetForm(selectedAsset)}
+        onDelete={() => {
+          if (assetId != null) {
+            deleteAsset(assetId);
+            setAssetId(null);
+          }
+        }}
+      />
+      <AssetFormDrawer
+        open={assetFormOpen}
+        asset={assetEditing}
+        onClose={() => setAssetFormOpen(false)}
+        onCreate={createAsset}
+        onUpdate={updateAsset}
       />
     </EntityCardsContext.Provider>
   );

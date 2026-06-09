@@ -13,6 +13,7 @@ export type Capability =
   | "booking.view" // оставлять заявки на бронь
   | "booking.manage" // администрирование броней залов
   | "assets.view"
+  | "assets.create"
   | "assets.edit"
   | "assets.delete"
   | "users.view"
@@ -32,6 +33,7 @@ export const ALL_CAPABILITIES: Capability[] = [
   "booking.view",
   "booking.manage",
   "assets.view",
+  "assets.create",
   "assets.edit",
   "assets.delete",
   "users.view",
@@ -57,7 +59,14 @@ const IT: Capability[] = [
   "dashboard.own",
 ];
 
-const ADMIN: Capability[] = [...IT, "tickets.delete", "assets.delete", "reports.view", "dashboard.full"];
+const ADMIN: Capability[] = [
+  ...IT,
+  "tickets.delete",
+  "assets.create",
+  "assets.delete",
+  "reports.view",
+  "dashboard.full",
+];
 
 export const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
   // Сотрудник: только свои заявки (создание), бронирование и справочник.

@@ -28,6 +28,9 @@
     "search": "Search",
     "create": "Create",
     "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "columns": "Columns",
     "all": "All",
     "language": "Language",
     "copied": "E-mail copied to clipboard",
@@ -174,8 +177,24 @@
   },
   "assets": {
     "searchPlaceholder": "Search by model or inventory no.…",
-    "col": { "model": "Model" },
-    "filter": { "type": "Type", "status": "Status" }
+    "col": { "model": "Name" },
+    "filter": { "type": "Type", "status": "Status" },
+    "add": "Add asset",
+    "deleteConfirm": "Delete this asset?",
+    "form": {
+      "create": "New asset",
+      "edit": "Edit asset",
+      "submit": "Save",
+      "required": "This field is required",
+      "typePlaceholder": "Select a type",
+      "statusPlaceholder": "Select a status",
+      "assigneePlaceholder": "Search user…",
+      "warrantyPlaceholder": "Select a date"
+    }
+  },
+  "assetAttr": {
+    "macAddress": "MAC address",
+    "ipAddress": "IP address"
   },
   "equipmentType": {
     "workstation": "Workstation",

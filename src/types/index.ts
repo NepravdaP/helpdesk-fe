@@ -83,6 +83,7 @@ export interface Equipment {
   location: string;
   warrantyUntil: string | null; // ISO
   assignedToId: number | null; // за кем закреплён (FK → users)
+  attributes?: Record<string, string>; // поля, зависящие от типа (MAC, IP и т.п.)
 }
 
 // ---- Бронирование ----
