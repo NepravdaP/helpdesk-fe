@@ -49,6 +49,9 @@ export function UserCardDrawer({
   const initials =
     user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";
 
+  const initials =
+    user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";
+
   return (
     <Drawer title={user?.fullName ?? ""} width={540} open={userId != null} onClose={onClose} destroyOnClose>
       {user && (
