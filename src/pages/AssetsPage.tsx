@@ -13,13 +13,13 @@ import {
 import { PlusOutlined, SettingOutlined } from "@ant-design/icons";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
-import { USERS } from "@/data/mock";
-import { ALL_ASSET_ATTRIBUTES } from "@/config/assetTypes";
 import { formatDate } from "@/utils/format";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
 import { useAssets } from "@/store/AssetsContext";
+import { useUsers } from "@/store/UsersContext";
+import { useConfig } from "@/store/ConfigContext";
 import { useEntityCards } from "@/store/EntityCards";
 import type { Equipment, EquipmentStatus, EquipmentType } from "@/types";
 
@@ -30,19 +30,23 @@ const STATUS_COLOR: Record<EquipmentStatus, string> = {
 };
 
 const BASE_COLUMNS = ["inventoryNo", "model", "type", "status", "location", "owner", "warranty"] as const;
-const ALL_COLUMNS: string[] = [...BASE_COLUMNS, ...ALL_ASSET_ATTRIBUTES];
 const DEFAULT_VISIBLE: string[] = [...BASE_COLUMNS];
-
-const userName = (id: number | null) =>
-  id != null ? (USERS.find((u) => u.id === id)?.fullName ?? `#${id}`) : null;
 
 export function AssetsPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { assets } = useAssets();
+  const { users } = useUsers();
+  const { allAssetAttributes } = useConfig();
   const { openAsset, openUser, openAssetForm } = useEntityCards();
 
   const canCreate = can(user.role, "assets.create");
+
+  const attributeDefs = allAssetAttributes();
+  const allColumns: string[] = [...BASE_COLUMNS, ...attributeDefs.map((a) => a.key)];
+  const attrLabel = (key: string) => attributeDefs.find((a) => a.key === key)?.label ?? key;
+  const userName = (id: number | null) =>
+    id != null ? (users.find((u) => u.id === id)?.fullName ?? `#${id}`) : null;
 
   const [search, setSearch] = useState("");
   const [type, setType] = useState<EquipmentType | "all">("all");
@@ -71,7 +75,7 @@ export function AssetsPage() {
       owner: t("assetCard.owner"),
       warranty: t("assetCard.warranty"),
     };
-    return baseLabels[key] ?? t(`assetAttr.${key}`);
+    return baseLabels[key] ?? attrLabel(key);
   };
 
   const muted = (text: string) => <Typography.Text type="secondary">{text}</Typography.Text>;
@@ -118,25 +122,25 @@ export function AssetsPage() {
         render: (v: string | null) => (v ? formatDate(v, i18n.language) : muted("—")),
       },
     };
-    for (const key of ALL_ASSET_ATTRIBUTES) {
-      map[key] = {
-        key,
-        title: labelOf(key),
+    for (const attr of attributeDefs) {
+      map[attr.key] = {
+        key: attr.key,
+        title: attr.label,
         width: 160,
-        render: (_, record) => record.attributes?.[key] ?? muted("—"),
+        render: (_, record) => record.attributes?.[attr.key] ?? muted("—"),
       };
     }
     return map;
-  }, [t, i18n.language]);
+  }, [t, i18n.language, attributeDefs, users]);
 
-  const columns: ColumnsType<Equipment> = ALL_COLUMNS.filter((k) => visible.includes(k)).map((k) => columnMap[k]);
+  const columns: ColumnsType<Equipment> = allColumns.filter((k) => visible.includes(k)).map((k) => columnMap[k]);
 
   const columnSettings = (
     <Checkbox.Group
       value={visible}
       onChange={(vals) => setVisible(vals as string[])}
       style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 180 }}
-      options={ALL_COLUMNS.map((k) => ({ label: labelOf(k), value: k }))}
+      options={allColumns.map((k) => ({ label: labelOf(k), value: k }))}
     />
   );
 

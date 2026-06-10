@@ -27,6 +27,7 @@ interface TicketsContextValue {
   tickets: TicketRow[];
   activity: Record<number, ActivityEntry[]>;
   createTicket: (ticket: TicketRow) => void;
+  updateTicket: (ticket: TicketRow) => void;
   setStatus: (id: number, status: TicketStatus) => void;
   setAssignee: (id: number, userId: number | null) => void;
   addComment: (id: number, text: string) => void;
@@ -66,6 +67,10 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
             { id: Date.now() * 100 + activitySeq++, kind: "created", at: ticket.createdAt, author: ticket.requesterName },
           ],
         }));
+      },
+      updateTicket: (ticket) => {
+        setTickets((prev) => prev.map((r) => (r.id === ticket.id ? ticket : r)));
+        push(ticket.id, { kind: "edited" });
       },
       setStatus: (id, status) => {
         setTickets((prev) =>

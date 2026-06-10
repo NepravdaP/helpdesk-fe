@@ -15,13 +15,14 @@ import { USERS } from "@/data/mock";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
 import { useAssets } from "@/store/AssetsContext";
-import { ASSET_TYPE_ATTRIBUTES } from "@/config/assetTypes";
+import { useConfig } from "@/store/ConfigContext";
 import { formatDate } from "@/utils/format";
 import type { TicketRow, TicketStatus } from "@/types";
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
+  request: "default",
   open: "blue",
-  in_progress: "gold",
+  clarification: "gold",
   closed: "green",
 };
 
@@ -45,6 +46,7 @@ export function AssetCardDrawer({
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { assets } = useAssets();
+  const { attributesForType } = useConfig();
   const asset = assets.find((e) => e.id === assetId) ?? null;
   const canEdit = can(user.role, "assets.edit");
   const canDelete = can(user.role, "assets.delete");
@@ -98,9 +100,9 @@ export function AssetCardDrawer({
                 "—"
               )}
             </Descriptions.Item>
-            {ASSET_TYPE_ATTRIBUTES[asset.type].map((key) => (
-              <Descriptions.Item key={key} label={t(`assetAttr.${key}`)}>
-                {asset.attributes?.[key] ?? "—"}
+            {attributesForType(asset.type).map((attr) => (
+              <Descriptions.Item key={attr.key} label={attr.label}>
+                {asset.attributes?.[attr.key] ?? "—"}
               </Descriptions.Item>
             ))}
           </Descriptions>

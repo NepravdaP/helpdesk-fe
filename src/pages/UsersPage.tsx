@@ -2,15 +2,16 @@ import { useMemo, useState } from "react";
 import { Input, Select, Space, Table, Tooltip, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
-import { USERS } from "@/data/mock";
+import { useUsers } from "@/store/UsersContext";
 import { useCopyEmail } from "@/hooks/useCopyEmail";
 import { useEntityCards } from "@/store/EntityCards";
 import type { Role, User } from "@/types";
 
-const ROLE_FILTER: Role[] = ["employee", "it", "admin", "superadmin", "room_admin"];
+const ROLE_FILTER: Role[] = ["employee", "it", "admin", "superadmin"];
 
 export function UsersPage() {
   const { t } = useTranslation();
+  const { users } = useUsers();
   const { openUser } = useEntityCards();
   const copyEmail = useCopyEmail();
   const [search, setSearch] = useState("");
@@ -18,7 +19,7 @@ export function UsersPage() {
 
   const data = useMemo(
     () =>
-      USERS.filter((u) => {
+      users.filter((u) => {
         const q = search.toLowerCase();
         const okSearch =
           u.fullName.toLowerCase().includes(q) ||
@@ -27,7 +28,7 @@ export function UsersPage() {
         const okRole = role === "all" || u.role === role;
         return okSearch && okRole;
       }),
-    [search, role],
+    [search, role, users],
   );
 
   const muted = (v?: string) => (v ? v : <Typography.Text type="secondary">—</Typography.Text>);

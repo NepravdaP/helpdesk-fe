@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 import { getTheme, type ThemeMode } from "@/theme/theme";
 import { ThemeModeContext } from "@/theme/themeMode";
 import { usePersistentState } from "@/hooks/usePersistentState";
+import { ConfigProvider as AppConfigProvider } from "@/store/ConfigContext";
+import { UsersProvider } from "@/store/UsersContext";
 import { TicketsProvider } from "@/store/TicketsContext";
 import { AssetsProvider } from "@/store/AssetsContext";
 import { EntityCardsProvider } from "@/store/EntityCards";
@@ -19,7 +21,8 @@ import { TicketsPage } from "@/pages/TicketsPage";
 import { AssetsPage } from "@/pages/AssetsPage";
 import { UsersPage } from "@/pages/UsersPage";
 import { DirectoryPage } from "@/pages/DirectoryPage";
-import { BookingPage, ReportsPage, ConfigPage } from "@/pages/Placeholders";
+import { ConfigPage } from "@/pages/ConfigPage";
+import { BookingPage, ReportsPage } from "@/pages/Placeholders";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
 const ANTD_LOCALES: Record<string, Locale> = { ru: ruRU, en: enUS };
@@ -47,9 +50,11 @@ export default function App() {
     <ThemeModeContext.Provider value={themeMode}>
       <ConfigProvider theme={getTheme(mode)} locale={antdLocale}>
         <AntApp>
-          <TicketsProvider>
-            <AssetsProvider>
-              <EntityCardsProvider>
+          <AppConfigProvider>
+            <UsersProvider>
+              <TicketsProvider>
+                <AssetsProvider>
+                  <EntityCardsProvider>
             <Routes>
               <Route element={<AppLayout />}>
                 <Route index element={<HomeRedirect />} />
@@ -119,9 +124,11 @@ export default function App() {
                 />
               </Route>
             </Routes>
-              </EntityCardsProvider>
-            </AssetsProvider>
-          </TicketsProvider>
+                  </EntityCardsProvider>
+                </AssetsProvider>
+              </TicketsProvider>
+            </UsersProvider>
+          </AppConfigProvider>
         </AntApp>
       </ConfigProvider>
     </ThemeModeContext.Provider>

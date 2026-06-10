@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Button,
   Checkbox,
@@ -18,8 +18,8 @@ import { formatDateTime } from "@/utils/format";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
 import { useTickets } from "@/store/TicketsContext";
+import { useConfig } from "@/store/ConfigContext";
 import { useEntityCards } from "@/store/EntityCards";
-import { TicketFormDrawer, type NewTicket } from "@/components/TicketFormDrawer";
 import type {
   TicketGroup,
   TicketPriority,
@@ -29,8 +29,9 @@ import type {
 } from "@/types";
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
+  request: "default",
   open: "blue",
-  in_progress: "gold",
+  clarification: "gold",
   closed: "green",
 };
 const PRIORITY_COLOR: Record<TicketPriority, string> = {
@@ -69,13 +70,13 @@ const DEFAULT_VISIBLE: ColKey[] = [
 export function TicketsPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { tickets, createTicket } = useTickets();
-  const { openTicket } = useEntityCards();
+  const { tickets } = useTickets();
+  const { services, ticketTypeByKey } = useConfig();
+  const { openTicket, openTicketForm } = useEntityCards();
 
   const viewAll = can(user.role, "tickets.viewAll");
   const showFilters = can(user.role, "tickets.filter");
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = usePersistentState("", "");
   const [status, setStatus] = usePersistentState<TicketStatus | "all">("all", "all");
   const [priority, setPriority] = usePersistentState<TicketPriority | "all">("all", "all");
@@ -107,8 +108,8 @@ export function TicketsPage() {
         key: "type",
         title: t("tickets.col.type"),
         dataIndex: "type",
-        width: 130,
-        render: (v: TicketType) => t(`tickets.type.${v}`),
+        width: 150,
+        render: (v: TicketType) => ticketTypeByKey(v)?.name ?? v,
       },
       priority: {
         key: "priority",
@@ -161,7 +162,7 @@ export function TicketsPage() {
         render: (v: string) => muted(formatDateTime(v, i18n.language)),
       },
     };
-  }, [t, i18n.language]);
+  }, [t, i18n.language, ticketTypeByKey]);
 
   const columns: ColumnsType<TicketRow> = ALL_COLUMNS.filter((k) => visible.includes(k)).map(
     (k) => columnMap[k],
@@ -182,7 +183,7 @@ export function TicketsPage() {
         <Typography.Title level={4} style={{ margin: 0 }}>
           {t("tickets.title")}
         </Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => openTicketForm(null)}>
           {t("tickets.new")}
         </Button>
       </div>
@@ -201,8 +202,9 @@ export function TicketsPage() {
           onChange={setStatus}
           options={[
             { value: "all", label: `${t("tickets.filter.status")}: ${t("common.all")}` },
+            { value: "request", label: t("tickets.status.request") },
             { value: "open", label: t("tickets.status.open") },
-            { value: "in_progress", label: t("tickets.status.in_progress") },
+            { value: "clarification", label: t("tickets.status.clarification") },
             { value: "closed", label: t("tickets.status.closed") },
           ]}
         />
@@ -219,15 +221,14 @@ export function TicketsPage() {
         />
         <Select
           value={type}
-          style={{ width: 160 }}
+          style={{ width: 180 }}
           onChange={setType}
           options={[
             { value: "all", label: `${t("tickets.filter.type")}: ${t("common.all")}` },
-            { value: "repair", label: t("tickets.type.repair") },
-            { value: "replacement", label: t("tickets.type.replacement") },
-            { value: "software", label: t("tickets.type.software") },
-            { value: "access", label: t("tickets.type.access") },
-            { value: "other", label: t("tickets.type.other") },
+            ...services.map((s) => ({
+              label: s.name,
+              options: s.ticketTypes.map((tt) => ({ value: tt.key, label: tt.name })),
+            })),
           ]}
         />
         <Popover content={columnSettings} trigger="click" placement="bottomRight">
@@ -246,12 +247,6 @@ export function TicketsPage() {
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
         scroll={{ x: "max-content" }}
         size="middle"
-      />
-
-      <TicketFormDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onCreate={(ticket: NewTicket) => createTicket(ticket)}
       />
     </Space>
   );

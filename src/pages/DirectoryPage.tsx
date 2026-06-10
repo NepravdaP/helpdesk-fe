@@ -4,8 +4,8 @@ import { UserOutlined, ApartmentOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { DataNode } from "antd/es/tree";
 import { useTranslation } from "react-i18next";
-import { USERS } from "@/data/mock";
-import { positionWeight } from "@/config/positionWeights";
+import { useUsers } from "@/store/UsersContext";
+import { useConfig } from "@/store/ConfigContext";
 import { palette } from "@/theme/colors";
 import { useCopyEmail } from "@/hooks/useCopyEmail";
 import { UserCardDrawer } from "@/components/UserCardDrawer";
@@ -19,16 +19,17 @@ const clip = (s: string, n = 20) => (s.length > n ? `${s.slice(0, n)}…` : s);
 // ---- Вкладка «По алфавиту» (таблица в общем формате) ----
 function AlphabetTab({ onOpen }: { onOpen: (id: number) => void }) {
   const { t } = useTranslation();
+  const { users } = useUsers();
   const copyEmail = useCopyEmail();
   const [search, setSearch] = useState("");
 
   const data = useMemo(() => {
     const q = search.toLowerCase();
-    return USERS.filter(
+    return users.filter(
       (u) =>
         u.fullName.toLowerCase().includes(q) || (u.orgDepartment ?? "").toLowerCase().includes(q),
     ).sort((a, b) => a.fullName.localeCompare(b.fullName, "ru"));
-  }, [search]);
+  }, [search, users]);
 
   const muted = (v?: string) => (v ? v : <Typography.Text type="secondary">—</Typography.Text>);
 
@@ -113,12 +114,14 @@ function EmployeeLeaf({ u }: { u: User }) {
 
 function OrgTab({ onOpen }: { onOpen: (id: number) => void }) {
   const { t } = useTranslation();
+  const { users } = useUsers();
+  const { positionWeight } = useConfig();
 
   const treeData = useMemo<DataNode[]>(() => {
     const noDiv = t("directory.noDivision");
     const noDep = t("directory.noDepartment");
     const divisions = new Map<string, Map<string, User[]>>();
-    for (const u of USERS) {
+    for (const u of users) {
       const div = u.orgDivision || noDiv;
       const dep = u.orgDepartment || noDep;
       if (!divisions.has(div)) divisions.set(div, new Map());
@@ -158,7 +161,7 @@ function OrgTab({ onOpen }: { onOpen: (id: number) => void }) {
         })),
       };
     });
-  }, [t]);
+  }, [t, users, positionWeight]);
 
   return (
     <Tree.DirectoryTree

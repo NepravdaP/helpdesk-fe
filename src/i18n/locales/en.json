@@ -21,8 +21,7 @@
     "employee": "Employee",
     "it": "IT specialist",
     "admin": "Administrator",
-    "superadmin": "Superadmin",
-    "room_admin": "Room administrator"
+    "superadmin": "Superadmin"
   },
   "common": {
     "search": "Search",
@@ -40,7 +39,9 @@
     "logout": "Log out",
     "actAs": "Act as",
     "empty": "No data",
-    "inDevelopment": "Section under development"
+    "inDevelopment": "Section under development",
+    "save": "Save",
+    "add": "Add"
   },
   "tickets": {
     "title": "Tickets",
@@ -50,7 +51,7 @@
     "col": {
       "id": "#",
       "title": "Subject",
-      "type": "Type",
+      "type": "Service",
       "priority": "Priority",
       "status": "Status",
       "group": "Assignee group",
@@ -60,8 +61,9 @@
       "updatedAt": "Updated at"
     },
     "status": {
+      "request": "Request",
       "open": "Open",
-      "in_progress": "In progress",
+      "clarification": "Needs clarification",
       "closed": "Closed"
     },
     "priority": {
@@ -85,24 +87,25 @@
     "filter": {
       "status": "Status",
       "priority": "Priority",
-      "type": "Type"
+      "type": "Service"
     },
     "form": {
       "subject": "Subject",
       "subjectPlaceholder": "Briefly describe the problem",
-      "type": "Ticket type",
-      "typePlaceholder": "Select a type",
+      "type": "Service",
+      "typePlaceholder": "Select a service",
+      "editTitle": "Edit ticket",
       "description": "Description",
       "descriptionPlaceholder": "Details: what happened, where, since when",
       "requester": "Requester",
       "requesterPlaceholder": "Search user…",
       "equipment": "Asset",
       "equipmentPlaceholder": "Search asset…",
-      "derivedTitle": "Parameters by ticket type",
-      "derivedHint": "Priority, assignee group and due time are determined by the ticket type — configured by the superadmin.",
+      "derivedTitle": "Parameters by service",
+      "derivedHint": "Priority, assignee group and due time are determined by the service — configured by the superadmin.",
       "sla": "Due time",
       "hours": "h",
-      "selectTypeFirst": "Select a ticket type",
+      "selectTypeFirst": "Select a service",
       "submit": "Create ticket",
       "required": "This field is required"
     },
@@ -121,7 +124,8 @@
         "created": "Ticket created",
         "status": "Status changed: {{status}}",
         "assigned": "Assigned to: {{name}}",
-        "unassigned": "Assignee removed"
+        "unassigned": "Assignee removed",
+        "edited": "Ticket edited"
       }
     },
     "unassigned": "—"
@@ -146,7 +150,8 @@
     "orgDivision": "Division",
     "orgTitle": "Title",
     "tickets": "User tickets",
-    "equipment": "Assigned equipment"
+    "equipment": "Assigned equipment",
+    "bookingManager": "Manages bookings"
   },
   "users": {
     "searchPlaceholder": "Search by name, login, department…",
@@ -157,7 +162,9 @@
       "department": "Department",
       "email": "E-mail"
     },
-    "filter": { "role": "Role" }
+    "filter": {
+      "role": "Role"
+    }
   },
   "directory": {
     "tabAlphabet": "Alphabetical",
@@ -177,8 +184,13 @@
   },
   "assets": {
     "searchPlaceholder": "Search by model or inventory no.…",
-    "col": { "model": "Name" },
-    "filter": { "type": "Type", "status": "Status" },
+    "col": {
+      "model": "Name"
+    },
+    "filter": {
+      "type": "Type",
+      "status": "Status"
+    },
     "add": "Add asset",
     "deleteConfirm": "Delete this asset?",
     "form": {
@@ -186,7 +198,8 @@
       "edit": "Edit asset",
       "submit": "Save",
       "required": "This field is required",
-      "typePlaceholder": "Select a type",
+      "typePlaceholder": "Select a service",
+      "editTitle": "Edit ticket",
       "statusPlaceholder": "Select a status",
       "assigneePlaceholder": "Search user…",
       "warrantyPlaceholder": "Select a date"
@@ -205,5 +218,71 @@
     "in_use": "In use",
     "repair": "Under repair",
     "decommissioned": "Decommissioned"
+  },
+  "userForm": {
+    "title": "Edit user",
+    "adHint": "Login and e-mail are synced from Active Directory and cannot be edited.",
+    "login": "Login",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "middleName": "Middle name",
+    "bookingManager": "Can manage room bookings"
+  },
+  "config": {
+    "subtitle": "System reference data. Configured by the superadmin.",
+    "open": "Configure",
+    "save": "Save",
+    "services": {
+      "title": "Ticket services",
+      "desc": "Services with their priority, group and due time."
+    },
+    "assetTypes": {
+      "title": "Asset types",
+      "desc": "Equipment types and their attributes (MAC, IP, etc.)."
+    },
+    "statuses": {
+      "title": "Ticket statuses",
+      "desc": "Ticket status labels."
+    },
+    "weights": {
+      "title": "Positions",
+      "desc": "Positions and their weight for directory sorting."
+    },
+    "booking": {
+      "title": "Booking management",
+      "desc": "Employees allowed to manage room bookings."
+    },
+    "fields": {
+      "name": "Name",
+      "priority": "Priority",
+      "group": "Group",
+      "sla": "SLA, h",
+      "key": "Key",
+      "label": "Label",
+      "weight": "Weight",
+      "position": "Position",
+      "manage": "Manage bookings",
+      "attributes": "Attributes"
+    },
+    "addService": "Add service",
+    "addWeight": "Add position",
+    "addAttribute": "Add attribute",
+    "itemsCount": "items: {{count}}",
+    "peopleCount": "assigned: {{count}}",
+    "noManagers": "Nobody assigned",
+    "back": "Back",
+    "serviceTypes": "Ticket types",
+    "addTicketType": "Add ticket type",
+    "deleteConfirm": "Delete this item?",
+    "newService": "New service",
+    "editServiceTitle": "Service",
+    "newTicketType": "New ticket type",
+    "editTicketType": "Ticket type",
+    "newAttribute": "New attribute",
+    "editAttribute": "Attribute",
+    "editWeight": "Position",
+    "newWeight": "New position",
+    "typesCount": "types: {{count}}",
+    "attrCount": "fields: {{count}}"
   }
 }

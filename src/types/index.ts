@@ -1,7 +1,7 @@
 // Общие типы предметной области.
 // Держим их в одном месте — позже они должны совпасть со схемой Prisma на бэке.
 
-export type Role = "employee" | "it" | "admin" | "superadmin" | "room_admin";
+export type Role = "employee" | "it" | "admin" | "superadmin";
 
 export interface User {
   id: number;
@@ -20,12 +20,14 @@ export interface User {
   orgDepartment?: string; // отдел (department)
   orgDivision?: string; // подразделение (division)
   orgTitle?: string; // должность (title)
+  canManageBookings?: boolean; // назначается суперадмином в конфигураторе
 }
 
 // ---- HelpDesk ----
-export type TicketStatus = "open" | "in_progress" | "closed";
+export type TicketStatus = "request" | "open" | "clarification" | "closed";
 export type TicketPriority = "low" | "medium" | "high";
-export type TicketType = "repair" | "replacement" | "software" | "access" | "other";
+// Сервис заявки (бывш. «тип») — теперь конфигурируемый суперадмином, поэтому строка-ключ.
+export type TicketType = string;
 export type TicketGroup = "helpdesk" | "network" | "print" | "software";
 
 export interface Ticket {
@@ -58,7 +60,7 @@ export type TicketRow = Ticket & {
 };
 
 // Лента действий по заявке (на бэке — отдельная таблица истории/комментариев).
-export type ActivityKind = "created" | "status" | "assignee" | "comment";
+export type ActivityKind = "created" | "status" | "assignee" | "comment" | "edited";
 export interface ActivityEntry {
   id: number;
   kind: ActivityKind;

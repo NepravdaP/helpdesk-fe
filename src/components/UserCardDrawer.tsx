@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Button,
   Descriptions,
   Divider,
   Drawer,
@@ -8,17 +9,20 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { UserOutlined, EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import { USERS } from "@/data/mock";
+import { useUsers } from "@/store/UsersContext";
 import { useAssets } from "@/store/AssetsContext";
+import { useAuth } from "@/auth/AuthContext";
+import { can } from "@/auth/permissions";
 import { useCopyEmail } from "@/hooks/useCopyEmail";
 import { palette } from "@/theme/colors";
 import type { TicketRow, TicketStatus } from "@/types";
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
+  request: "default",
   open: "blue",
-  in_progress: "gold",
+  clarification: "gold",
   closed: "green",
 };
 
@@ -30,6 +34,7 @@ export function UserCardDrawer({
   onClose,
   onOpenTicket,
   onOpenAsset,
+  onEdit,
   showRelated = true,
 }: {
   userId: number | null;
@@ -37,23 +42,37 @@ export function UserCardDrawer({
   onClose: () => void;
   onOpenTicket?: (id: number) => void;
   onOpenAsset?: (id: number) => void;
+  onEdit?: () => void;
   showRelated?: boolean;
 }) {
   const { t } = useTranslation();
   const copyEmail = useCopyEmail();
+  const { user: currentUser } = useAuth();
+  const { users } = useUsers();
   const { assets } = useAssets();
-  const user = USERS.find((u) => u.id === userId) ?? null;
+  const user = users.find((u) => u.id === userId) ?? null;
   const userTickets = tickets.filter((tk) => tk.createdById === userId);
   const userEquipment = assets.filter((e) => e.assignedToId === userId);
-
-  const initials =
-    user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";
+  const canEdit = can(currentUser.role, "users.edit");
 
   const initials =
     user ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() : "";
 
   return (
-    <Drawer title={user?.fullName ?? ""} width={540} open={userId != null} onClose={onClose} destroyOnClose>
+    <Drawer
+      title={user?.fullName ?? ""}
+      width={540}
+      open={userId != null}
+      onClose={onClose}
+      destroyOnClose
+      extra={
+        user && onEdit && canEdit ? (
+          <Button type="text" icon={<EditOutlined />} onClick={onEdit}>
+            {t("common.edit")}
+          </Button>
+        ) : undefined
+      }
+    >
       {user && (
         <Space direction="vertical" size={16} style={{ width: "100%" }}>
           <Space align="center" size={16}>
@@ -72,6 +91,7 @@ export function UserCardDrawer({
               <Typography.Text type="secondary">{dash(user.orgTitle)}</Typography.Text>
               <div style={{ marginTop: 6 }}>
                 <Tag>{t(`roles.${user.role}`)}</Tag>
+                {user.canManageBookings && <Tag color="blue">{t("userCard.bookingManager")}</Tag>}
                 <Typography.Text type="secondary">@{user.userName}</Typography.Text>
               </div>
             </div>
