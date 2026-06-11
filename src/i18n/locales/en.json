@@ -101,13 +101,14 @@
       "requesterPlaceholder": "Search user…",
       "equipment": "Asset",
       "equipmentPlaceholder": "Search asset…",
-      "derivedTitle": "Parameters by service",
-      "derivedHint": "Priority, assignee group and due time are determined by the service — configured by the superadmin.",
+      "derivedTitle": "Due time by ticket type",
+      "derivedHint": "Due time is determined by the selected ticket type.",
       "sla": "Due time",
       "hours": "h",
       "selectTypeFirst": "Select a service",
       "submit": "Create ticket",
-      "required": "This field is required"
+      "required": "This field is required",
+      "priorityPlaceholder": "Select priority"
     },
     "detail": {
       "changeStatus": "Status",
@@ -233,7 +234,7 @@
     "open": "Configure",
     "save": "Save",
     "services": {
-      "title": "Ticket services",
+      "title": "Services",
       "desc": "Services with their priority, group and due time."
     },
     "assetTypes": {
@@ -283,6 +284,9 @@
     "editWeight": "Position",
     "newWeight": "New position",
     "typesCount": "types: {{count}}",
-    "attrCount": "fields: {{count}}"
+    "attrCount": "fields: {{count}}",
+    "addAssetType": "Add asset type",
+    "newAssetType": "New asset type",
+    "editAssetType": "Asset type"
   }
 }

@@ -37,7 +37,7 @@ export function AssetsPage() {
   const { user } = useAuth();
   const { assets } = useAssets();
   const { users } = useUsers();
-  const { allAssetAttributes } = useConfig();
+  const { allAssetAttributes, assetTypes, assetTypeName } = useConfig();
   const { openAsset, openUser, openAssetForm } = useEntityCards();
 
   const canCreate = can(user.role, "assets.create");
@@ -84,7 +84,7 @@ export function AssetsPage() {
     const map: Record<string, ColumnType<Equipment>> = {
       inventoryNo: { key: "inventoryNo", title: labelOf("inventoryNo"), dataIndex: "inventoryNo", width: 140 },
       model: { key: "model", title: labelOf("model"), dataIndex: "model", ellipsis: true, width: 240 },
-      type: { key: "type", title: labelOf("type"), dataIndex: "type", width: 130, render: (v: EquipmentType) => t(`equipmentType.${v}`) },
+      type: { key: "type", title: labelOf("type"), dataIndex: "type", width: 130, render: (v: EquipmentType) => assetTypeName(v) },
       status: {
         key: "status",
         title: labelOf("status"),
@@ -131,7 +131,7 @@ export function AssetsPage() {
       };
     }
     return map;
-  }, [t, i18n.language, attributeDefs, users]);
+  }, [t, i18n.language, attributeDefs, users, assetTypeName]);
 
   const columns: ColumnsType<Equipment> = allColumns.filter((k) => visible.includes(k)).map((k) => columnMap[k]);
 
@@ -171,9 +171,7 @@ export function AssetsPage() {
           onChange={setType}
           options={[
             { value: "all", label: `${t("assets.filter.type")}: ${t("common.all")}` },
-            { value: "workstation", label: t("equipmentType.workstation") },
-            { value: "printer", label: t("equipmentType.printer") },
-            { value: "multimedia", label: t("equipmentType.multimedia") },
+            ...assetTypes.map((tp) => ({ value: tp.key, label: tp.name })),
           ]}
         />
         <Select

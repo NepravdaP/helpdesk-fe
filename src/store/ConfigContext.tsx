@@ -1,14 +1,12 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { POSITION_WEIGHTS } from "@/config/positionWeights";
 import { ASSET_TYPE_ATTRIBUTES } from "@/config/assetTypes";
-import type { EquipmentType, TicketGroup, TicketPriority } from "@/types";
+import type { EquipmentType } from "@/types";
 
-// Тип заявки внутри сервиса: задаёт приоритет, группу исполнителей и срок.
+// Тип заявки внутри сервиса: задаёт название и срок (SLA). Приоритет выбирается при создании заявки.
 export interface TicketTypeConfig {
   key: string;
   name: string;
-  priority: TicketPriority;
-  group: TicketGroup;
   slaHours: number;
 }
 // Сервис — логическая категория работ, внутри которой несколько типов заявок.
@@ -42,24 +40,24 @@ const initialServices: ServiceConfig[] = [
     key: "hardware",
     name: "Техника",
     ticketTypes: [
-      { key: "repair", name: "Ремонт оборудования", priority: "high", group: "helpdesk", slaHours: 8 },
-      { key: "replacement", name: "Замена оборудования", priority: "medium", group: "helpdesk", slaHours: 24 },
+      { key: "repair", name: "Ремонт оборудования", slaHours: 8 },
+      { key: "replacement", name: "Замена оборудования", slaHours: 24 },
     ],
   },
   {
     key: "software",
     name: "Программное обеспечение",
-    ticketTypes: [{ key: "software", name: "Установка ПО", priority: "low", group: "software", slaHours: 16 }],
+    ticketTypes: [{ key: "software", name: "Установка ПО", slaHours: 16 }],
   },
   {
     key: "access",
     name: "Доступы",
-    ticketTypes: [{ key: "access", name: "Предоставление доступа", priority: "medium", group: "network", slaHours: 8 }],
+    ticketTypes: [{ key: "access", name: "Предоставление доступа", slaHours: 8 }],
   },
   {
     key: "other",
     name: "Прочее",
-    ticketTypes: [{ key: "other", name: "Прочее", priority: "low", group: "helpdesk", slaHours: 48 }],
+    ticketTypes: [{ key: "other", name: "Прочее", slaHours: 48 }],
   },
 ];
 
@@ -91,6 +89,7 @@ interface ConfigContextValue {
   ticketTypeByKey: (key: string) => ResolvedTicketType | undefined;
   positionWeight: (title?: string) => number;
   attributesForType: (type: EquipmentType) => AssetAttributeConfig[];
+  assetTypeName: (type: EquipmentType) => string;
   allAssetAttributes: () => AssetAttributeConfig[];
 }
 
@@ -119,6 +118,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
       ticketTypeByKey: (key) => typeIndex.get(key),
       positionWeight: (title) => (title ? (weightMap.get(title) ?? 0) : 0),
       attributesForType: (type) => assetTypes.find((a) => a.key === type)?.attributes ?? [],
+      assetTypeName: (type) => assetTypes.find((a) => a.key === type)?.name ?? type,
       allAssetAttributes: () => {
         const seen = new Map<string, AssetAttributeConfig>();
         for (const at of assetTypes) for (const a of at.attributes) if (!seen.has(a.key)) seen.set(a.key, a);

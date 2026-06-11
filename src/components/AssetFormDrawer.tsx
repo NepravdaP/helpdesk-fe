@@ -6,7 +6,6 @@ import { MOCK_USERS } from "@/data/mock";
 import { useConfig } from "@/store/ConfigContext";
 import type { Equipment, EquipmentStatus, EquipmentType } from "@/types";
 
-const TYPES: EquipmentType[] = ["workstation", "printer", "multimedia"];
 const STATUSES: EquipmentStatus[] = ["in_use", "repair", "decommissioned"];
 
 export function AssetFormDrawer({
@@ -23,7 +22,7 @@ export function AssetFormDrawer({
   onUpdate: (asset: Equipment) => void;
 }) {
   const { t } = useTranslation();
-  const { attributesForType } = useConfig();
+  const { attributesForType, assetTypes } = useConfig();
   const [form] = Form.useForm();
   const selectedType = Form.useWatch("type", form) as EquipmentType | undefined;
 
@@ -88,7 +87,7 @@ export function AssetFormDrawer({
         <Form.Item name="type" label={t("assetCard.type")} rules={[{ required: true, message: t("assets.form.required") }]}>
           <Select
             placeholder={t("assets.form.typePlaceholder")}
-            options={TYPES.map((tp) => ({ value: tp, label: t(`equipmentType.${tp}`) }))}
+            options={assetTypes.map((tp) => ({ value: tp.key, label: tp.name }))}
           />
         </Form.Item>
 

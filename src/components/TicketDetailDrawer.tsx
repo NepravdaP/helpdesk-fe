@@ -188,9 +188,6 @@ export function TicketDetailDrawer({
           {!canEdit && <Alert type="info" showIcon message={t("tickets.detail.readonlyHint")} />}
 
           <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label={t("tickets.col.group")}>
-              {ticket.group ? t(`tickets.ticketGroup.${ticket.group}`) : "—"}
-            </Descriptions.Item>
             <Descriptions.Item label={t("tickets.col.requester")}>
               <Typography.Link onClick={() => onOpenUser(ticket.createdById)}>
                 {ticket.requesterName}

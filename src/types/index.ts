@@ -28,7 +28,6 @@ export type TicketStatus = "request" | "open" | "clarification" | "closed";
 export type TicketPriority = "low" | "medium" | "high";
 // Сервис заявки (бывш. «тип») — теперь конфигурируемый суперадмином, поэтому строка-ключ.
 export type TicketType = string;
-export type TicketGroup = "helpdesk" | "network" | "print" | "software";
 
 export interface Ticket {
   id: number;
@@ -37,20 +36,11 @@ export interface Ticket {
   type: TicketType;
   priority: TicketPriority;
   status: TicketStatus;
-  group: TicketGroup | null; // группа исполнителей
   createdById: number; // заявитель (FK → users)
   assignedToId: number | null;
   equipmentId: number | null;
   createdAt: string; // ISO — дата создания
   updatedAt: string; // ISO — дата изменения
-}
-
-// Конфигурация типа заявки. То, что задаёт суперадмин:
-// от типа зависят приоритет, группа исполнителей и срок исполнения (SLA).
-export interface TicketTypeConfig {
-  priority: TicketPriority;
-  group: TicketGroup;
-  slaHours: number; // нормативный срок исполнения, часов
 }
 
 // Строка для таблицы/карточки — заявка с «развёрнутыми» именами (на бэке придут из JOIN).
@@ -73,7 +63,8 @@ export interface ActivityEntry {
 
 // ---- Инвентаризация ----
 export type EquipmentStatus = "in_use" | "repair" | "decommissioned";
-export type EquipmentType = "workstation" | "printer" | "multimedia";
+// Тип актива — конфигурируемый суперадмином, поэтому строка-ключ.
+export type EquipmentType = string;
 
 export interface Equipment {
   id: number;

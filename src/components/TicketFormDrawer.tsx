@@ -14,6 +14,7 @@ const PRIORITY_COLOR: Record<TicketPriority, string> = {
 
 interface FormValues {
   type: string;
+  priority: TicketPriority;
   title: string;
   description: string;
   requesterId: number;
@@ -52,12 +53,13 @@ export function TicketFormDrawer({
       ticket
         ? {
             type: ticket.type,
+            priority: ticket.priority,
             title: ticket.title,
             description: ticket.description,
             requesterId: ticket.createdById,
             equipmentId: ticket.equipmentId ?? undefined,
           }
-        : { requesterId: user.id },
+        : { requesterId: user.id, priority: "medium" as TicketPriority },
     [ticket, user.id],
   );
 
@@ -67,7 +69,6 @@ export function TicketFormDrawer({
   };
 
   const handleSubmit = (values: FormValues) => {
-    const service = ticketTypeByKey(values.type)!;
     const requester = MOCK_USERS.find((u) => u.value === values.requesterId);
     const now = new Date().toISOString();
     if (ticket) {
@@ -76,8 +77,7 @@ export function TicketFormDrawer({
         title: values.title,
         description: values.description,
         type: values.type,
-        priority: service.priority,
-        group: service.group,
+        priority: values.priority,
         createdById: values.requesterId,
         requesterName: requester?.label ?? ticket.requesterName,
         equipmentId: values.equipmentId ?? null,
@@ -89,9 +89,8 @@ export function TicketFormDrawer({
         title: values.title,
         description: values.description,
         type: values.type,
-        priority: service.priority,
+        priority: values.priority,
         status: "request",
-        group: service.group,
         createdById: values.requesterId,
         assignedToId: null,
         equipmentId: values.equipmentId ?? null,
@@ -130,6 +129,20 @@ export function TicketFormDrawer({
           />
         </Form.Item>
 
+        <Form.Item name="priority" label={t("tickets.col.priority")} rules={[{ required: true, message: t("tickets.form.required") }]}>
+          <Select
+            placeholder={t("tickets.form.priorityPlaceholder")}
+            options={(["low", "medium", "high"] as TicketPriority[]).map((p) => ({
+              value: p,
+              label: (
+                <Tag color={PRIORITY_COLOR[p]} style={{ marginInlineEnd: 0 }}>
+                  {t(`tickets.priority.${p}`)}
+                </Tag>
+              ),
+            }))}
+          />
+        </Form.Item>
+
         <Form.Item name="requesterId" label={t("tickets.form.requester")} rules={[{ required: true, message: t("tickets.form.required") }]}>
           <Select showSearch optionFilterProp="label" placeholder={t("tickets.form.requesterPlaceholder")} options={MOCK_USERS} />
         </Form.Item>
@@ -153,12 +166,6 @@ export function TicketFormDrawer({
           </Typography.Paragraph>
           {svc ? (
             <Space direction="vertical" size={8} style={{ width: "100%" }}>
-              <Row label={t("tickets.col.priority")}>
-                <Tag color={PRIORITY_COLOR[svc.priority]} style={{ marginInlineEnd: 0 }}>
-                  {t(`tickets.priority.${svc.priority}`)}
-                </Tag>
-              </Row>
-              <Row label={t("tickets.col.group")}>{t(`tickets.ticketGroup.${svc.group}`)}</Row>
               <Row label={t("tickets.form.sla")}>
                 {svc.slaHours} {t("tickets.form.hours")}
               </Row>

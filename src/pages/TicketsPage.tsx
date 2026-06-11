@@ -21,7 +21,6 @@ import { useTickets } from "@/store/TicketsContext";
 import { useConfig } from "@/store/ConfigContext";
 import { useEntityCards } from "@/store/EntityCards";
 import type {
-  TicketGroup,
   TicketPriority,
   TicketRow,
   TicketStatus,
@@ -47,7 +46,6 @@ const ALL_COLUMNS = [
   "type",
   "priority",
   "status",
-  "group",
   "requester",
   "assignee",
   "createdAt",
@@ -124,13 +122,6 @@ export function TicketsPage() {
         dataIndex: "status",
         width: 120,
         render: (v: TicketStatus) => <Tag color={STATUS_COLOR[v]}>{t(`tickets.status.${v}`)}</Tag>,
-      },
-      group: {
-        key: "group",
-        title: t("tickets.col.group"),
-        dataIndex: "group",
-        width: 200,
-        render: (v: TicketGroup | null) => (v ? t(`tickets.ticketGroup.${v}`) : muted(t("tickets.unassigned"))),
       },
       requester: {
         key: "requester",

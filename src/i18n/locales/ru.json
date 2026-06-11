@@ -101,13 +101,14 @@
       "requesterPlaceholder": "Поиск пользователя…",
       "equipment": "Актив",
       "equipmentPlaceholder": "Поиск актива…",
-      "derivedTitle": "Параметры по сервису",
-      "derivedHint": "Приоритет, группа исполнителей и срок определяются сервисом — их настраивает суперадмин.",
+      "derivedTitle": "Срок по типу заявки",
+      "derivedHint": "Срок исполнения определяется выбранным типом заявки.",
       "sla": "Срок исполнения",
       "hours": "ч",
       "selectTypeFirst": "Выберите сервис",
       "submit": "Создать заявку",
-      "required": "Заполните поле"
+      "required": "Заполните поле",
+      "priorityPlaceholder": "Выберите приоритет"
     },
     "detail": {
       "changeStatus": "Статус",
@@ -233,7 +234,7 @@
     "open": "Настроить",
     "save": "Сохранить",
     "services": {
-      "title": "Сервисы заявок",
+      "title": "Сервисы",
       "desc": "Список сервисов, их приоритет, группа и срок."
     },
     "assetTypes": {
@@ -283,6 +284,9 @@
     "editWeight": "Должность",
     "newWeight": "Новая должность",
     "typesCount": "типов: {{count}}",
-    "attrCount": "полей: {{count}}"
+    "attrCount": "полей: {{count}}",
+    "addAssetType": "Добавить тип актива",
+    "newAssetType": "Новый тип актива",
+    "editAssetType": "Тип актива"
   }
 }

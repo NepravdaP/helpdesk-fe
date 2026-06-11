@@ -46,7 +46,7 @@ export function AssetCardDrawer({
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { assets } = useAssets();
-  const { attributesForType } = useConfig();
+  const { attributesForType, assetTypeName } = useConfig();
   const asset = assets.find((e) => e.id === assetId) ?? null;
   const canEdit = can(user.role, "assets.edit");
   const canDelete = can(user.role, "assets.delete");
@@ -87,7 +87,7 @@ export function AssetCardDrawer({
         <Space direction="vertical" size={16} style={{ width: "100%" }}>
           <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label={t("assetCard.inventoryNo")}>{asset.inventoryNo}</Descriptions.Item>
-            <Descriptions.Item label={t("assetCard.type")}>{t(`equipmentType.${asset.type}`)}</Descriptions.Item>
+            <Descriptions.Item label={t("assetCard.type")}>{assetTypeName(asset.type)}</Descriptions.Item>
             <Descriptions.Item label={t("assetCard.status")}>{t(`equipmentStatus.${asset.status}`)}</Descriptions.Item>
             <Descriptions.Item label={t("assetCard.location")}>{asset.location}</Descriptions.Item>
             <Descriptions.Item label={t("assetCard.warranty")}>

@@ -13,7 +13,6 @@ import {
   Modal,
   Popconfirm,
   Row,
-  Select,
   Space,
   Tag,
   Typography,
@@ -37,10 +36,38 @@ import {
   type PositionWeight,
 } from "@/store/ConfigContext";
 import { palette } from "@/theme/colors";
-import type { TicketGroup, TicketPriority } from "@/types";
 
-const PRIORITIES: TicketPriority[] = ["low", "medium", "high"];
-const GROUPS: TicketGroup[] = ["helpdesk", "network", "print", "software"];
+// Футер модалки-редактора: слева — удаление (только при редактировании), справа — отмена/сохранить.
+function editorFooter(
+  t: (k: string) => string,
+  onClose: () => void,
+  onSubmit: () => void,
+  onDelete?: () => void,
+) {
+  return [
+    onDelete ? (
+      <Popconfirm
+        key="del"
+        title={t("config.deleteConfirm")}
+        okButtonProps={{ danger: true }}
+        onConfirm={() => {
+          onDelete();
+          onClose();
+        }}
+      >
+        <Button danger icon={<DeleteOutlined />} style={{ float: "left" }}>
+          {t("common.delete")}
+        </Button>
+      </Popconfirm>
+    ) : null,
+    <Button key="c" onClick={onClose}>
+      {t("common.cancel")}
+    </Button>,
+    <Button key="s" type="primary" onClick={onSubmit}>
+      {t("common.save")}
+    </Button>,
+  ];
+}
 
 type Nav =
   | { level: "home" }
@@ -98,7 +125,9 @@ export function ConfigPage() {
       {nav.level === "assetTypes" && (
         <AssetTypesList onOpen={(typeKey) => setNav({ level: "assetType", typeKey })} />
       )}
-      {nav.level === "assetType" && assetType && <AssetTypeDetail assetType={assetType} />}
+      {nav.level === "assetType" && assetType && (
+        <AssetTypeDetail assetType={assetType} onDeleted={() => setNav({ level: "assetTypes" })} />
+      )}
       {nav.level === "weights" && <WeightsList />}
     </Space>
   );
@@ -182,14 +211,6 @@ function ServicesList({ onOpen }: { onOpen: (serviceKey: string) => void }) {
                   setOpen(true);
                 }}
               />,
-              <Popconfirm
-                key="d"
-                title={t("config.deleteConfirm")}
-                okButtonProps={{ danger: true }}
-                onConfirm={() => setServices(services.filter((x) => x.key !== s.key))}
-              >
-                <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-              </Popconfirm>,
               <RightOutlined key="r" style={{ color: "#bbb" }} />,
             ]}
           >
@@ -215,6 +236,7 @@ function ServicesList({ onOpen }: { onOpen: (serviceKey: string) => void }) {
         initial={editing?.name ?? ""}
         onClose={() => setOpen(false)}
         onSave={save}
+        onDelete={editing ? () => setServices(services.filter((x) => x.key !== editing.key)) : undefined}
       />
     </Card>
   );
@@ -248,27 +270,13 @@ function ServiceDetail({ service }: { service: ServiceConfig }) {
               setEditing(tt);
               setOpen(true);
             }}
-            actions={[
-              <Popconfirm
-                key="d"
-                title={t("config.deleteConfirm")}
-                okButtonProps={{ danger: true }}
-                onConfirm={() => writeTypes(service.ticketTypes.filter((x) => x.key !== tt.key))}
-              >
-                <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-              </Popconfirm>,
-            ]}
           >
             <List.Item.Meta
               title={tt.name}
               description={
-                <Space size={6} wrap>
-                  <Tag>{t(`tickets.priority.${tt.priority}`)}</Tag>
-                  <Tag>{t(`tickets.ticketGroup.${tt.group}`)}</Tag>
-                  <Typography.Text type="secondary">
-                    {t("config.fields.sla")}: {tt.slaHours}
-                  </Typography.Text>
-                </Space>
+                <Typography.Text type="secondary">
+                  {t("config.fields.sla")}: {tt.slaHours}
+                </Typography.Text>
               }
             />
           </List.Item>
@@ -286,7 +294,13 @@ function ServiceDetail({ service }: { service: ServiceConfig }) {
       >
         {t("config.addTicketType")}
       </Button>
-      <TicketTypeModal open={open} editing={editing} onClose={() => setOpen(false)} onSave={save} />
+      <TicketTypeModal
+        open={open}
+        editing={editing}
+        onClose={() => setOpen(false)}
+        onSave={save}
+        onDelete={editing ? () => writeTypes(service.ticketTypes.filter((x) => x.key !== editing.key)) : undefined}
+      />
     </Card>
   );
 }
@@ -294,7 +308,8 @@ function ServiceDetail({ service }: { service: ServiceConfig }) {
 // ——— Список типов активов ———
 function AssetTypesList({ onOpen }: { onOpen: (typeKey: string) => void }) {
   const { t } = useTranslation();
-  const { assetTypes } = useConfig();
+  const { assetTypes, setAssetTypes } = useConfig();
+  const [open, setOpen] = useState(false);
   return (
     <Card>
       <List
@@ -309,12 +324,25 @@ function AssetTypesList({ onOpen }: { onOpen: (typeKey: string) => void }) {
           </List.Item>
         )}
       />
+      <Button type="dashed" icon={<PlusOutlined />} block style={{ marginTop: 12 }} onClick={() => setOpen(true)}>
+        {t("config.addAssetType")}
+      </Button>
+      <NameModal
+        open={open}
+        title={t("config.newAssetType")}
+        initial=""
+        onClose={() => setOpen(false)}
+        onSave={(name) => {
+          setAssetTypes([...assetTypes, { key: `at_${Date.now()}`, name, attributes: [] }]);
+          setOpen(false);
+        }}
+      />
     </Card>
   );
 }
 
 // ——— Детали типа актива: имя + поля ———
-function AssetTypeDetail({ assetType }: { assetType: AssetTypeConfig }) {
+function AssetTypeDetail({ assetType, onDeleted }: { assetType: AssetTypeConfig; onDeleted: () => void }) {
   const { t } = useTranslation();
   const { assetTypes, setAssetTypes } = useConfig();
   const [editing, setEditing] = useState<AssetAttributeConfig | null>(null);
@@ -350,16 +378,6 @@ function AssetTypeDetail({ assetType }: { assetType: AssetTypeConfig }) {
               setEditing(attr);
               setOpen(true);
             }}
-            actions={[
-              <Popconfirm
-                key="d"
-                title={t("config.deleteConfirm")}
-                okButtonProps={{ danger: true }}
-                onConfirm={() => write({ attributes: assetType.attributes.filter((x) => x.key !== attr.key) })}
-              >
-                <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-              </Popconfirm>,
-            ]}
           >
             <List.Item.Meta title={attr.label} description={<Tag>{attr.key}</Tag>} />
           </List.Item>
@@ -378,15 +396,27 @@ function AssetTypeDetail({ assetType }: { assetType: AssetTypeConfig }) {
         {t("config.addAttribute")}
       </Button>
 
-      <AttributeModal open={open} editing={editing} onClose={() => setOpen(false)} onSave={saveAttr} />
+      <AttributeModal
+        open={open}
+        editing={editing}
+        onClose={() => setOpen(false)}
+        onSave={saveAttr}
+        onDelete={
+          editing ? () => write({ attributes: assetType.attributes.filter((x) => x.key !== editing.key) }) : undefined
+        }
+      />
       <NameModal
         open={nameOpen}
-        title={t("config.assetTypes.title")}
+        title={t("config.editAssetType")}
         initial={assetType.name}
         onClose={() => setNameOpen(false)}
         onSave={(name) => {
           write({ name });
           setNameOpen(false);
+        }}
+        onDelete={() => {
+          setAssetTypes(assetTypes.filter((a) => a.key !== assetType.key));
+          onDeleted();
         }}
       />
     </Card>
@@ -422,16 +452,6 @@ function WeightsList() {
               setEditing({ data: w, index });
               setOpen(true);
             }}
-            actions={[
-              <Popconfirm
-                key="d"
-                title={t("config.deleteConfirm")}
-                okButtonProps={{ danger: true }}
-                onConfirm={() => setWeights(weights.filter((_, i) => i !== index))}
-              >
-                <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-              </Popconfirm>,
-            ]}
           >
             <List.Item.Meta title={w.title} />
             <Tag>{w.weight}</Tag>
@@ -450,7 +470,13 @@ function WeightsList() {
       >
         {t("config.addWeight")}
       </Button>
-      <WeightModal open={open} editing={editing?.data ?? null} onClose={() => setOpen(false)} onSave={save} />
+      <WeightModal
+        open={open}
+        editing={editing?.data ?? null}
+        onClose={() => setOpen(false)}
+        onSave={save}
+        onDelete={editing ? () => setWeights(weights.filter((_, i) => i !== editing.index)) : undefined}
+      />
     </Card>
   );
 }
@@ -462,12 +488,14 @@ function NameModal({
   initial,
   onClose,
   onSave,
+  onDelete,
 }: {
   open: boolean;
   title: string;
   initial: string;
   onClose: () => void;
   onSave: (name: string) => void;
+  onDelete?: () => void;
 }) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -478,10 +506,8 @@ function NameModal({
       centered
       destroyOnClose
       onCancel={onClose}
-      okText={t("common.save")}
-      cancelText={t("common.cancel")}
       afterOpenChange={(o) => o && form.setFieldsValue({ name: initial })}
-      onOk={() => form.submit()}
+      footer={editorFooter(t, onClose, () => form.submit(), onDelete)}
     >
       <Form form={form} layout="vertical" onFinish={(v) => onSave((v.name as string).trim())}>
         <Form.Item name="name" label={t("config.fields.name")} rules={[{ required: true, message: t("assets.form.required") }]}>
@@ -497,11 +523,13 @@ function TicketTypeModal({
   editing,
   onClose,
   onSave,
+  onDelete,
 }: {
   open: boolean;
   editing: TicketTypeConfig | null;
   onClose: () => void;
   onSave: (tt: TicketTypeConfig) => void;
+  onDelete?: () => void;
 }) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -512,12 +540,8 @@ function TicketTypeModal({
       centered
       destroyOnClose
       onCancel={onClose}
-      okText={t("common.save")}
-      cancelText={t("common.cancel")}
-      afterOpenChange={(o) =>
-        o && form.setFieldsValue(editing ?? { priority: "medium", group: "helpdesk", slaHours: 24 })
-      }
-      onOk={() => form.submit()}
+      afterOpenChange={(o) => o && form.setFieldsValue(editing ?? { slaHours: 24 })}
+      footer={editorFooter(t, onClose, () => form.submit(), onDelete)}
     >
       <Form
         form={form}
@@ -526,20 +550,12 @@ function TicketTypeModal({
           onSave({
             key: editing?.key ?? `tt_${Date.now()}`,
             name: (v.name as string).trim(),
-            priority: v.priority,
-            group: v.group,
             slaHours: v.slaHours,
           })
         }
       >
         <Form.Item name="name" label={t("config.fields.name")} rules={[{ required: true, message: t("assets.form.required") }]}>
           <Input maxLength={120} />
-        </Form.Item>
-        <Form.Item name="priority" label={t("config.fields.priority")} rules={[{ required: true }]}>
-          <Select options={PRIORITIES.map((p) => ({ value: p, label: t(`tickets.priority.${p}`) }))} />
-        </Form.Item>
-        <Form.Item name="group" label={t("config.fields.group")} rules={[{ required: true }]}>
-          <Select options={GROUPS.map((g) => ({ value: g, label: t(`tickets.ticketGroup.${g}`) }))} />
         </Form.Item>
         <Form.Item name="slaHours" label={t("config.fields.sla")} rules={[{ required: true }]}>
           <InputNumber min={1} style={{ width: "100%" }} />
@@ -554,11 +570,13 @@ function AttributeModal({
   editing,
   onClose,
   onSave,
+  onDelete,
 }: {
   open: boolean;
   editing: AssetAttributeConfig | null;
   onClose: () => void;
   onSave: (attr: AssetAttributeConfig) => void;
+  onDelete?: () => void;
 }) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -569,10 +587,8 @@ function AttributeModal({
       centered
       destroyOnClose
       onCancel={onClose}
-      okText={t("common.save")}
-      cancelText={t("common.cancel")}
       afterOpenChange={(o) => o && form.setFieldsValue(editing ?? { key: "", label: "" })}
-      onOk={() => form.submit()}
+      footer={editorFooter(t, onClose, () => form.submit(), onDelete)}
     >
       <Form
         form={form}
@@ -600,11 +616,13 @@ function WeightModal({
   editing,
   onClose,
   onSave,
+  onDelete,
 }: {
   open: boolean;
   editing: PositionWeight | null;
   onClose: () => void;
   onSave: (w: PositionWeight) => void;
+  onDelete?: () => void;
 }) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -615,10 +633,8 @@ function WeightModal({
       centered
       destroyOnClose
       onCancel={onClose}
-      okText={t("common.save")}
-      cancelText={t("common.cancel")}
       afterOpenChange={(o) => o && form.setFieldsValue(editing ?? { title: "", weight: 0 })}
-      onOk={() => form.submit()}
+      footer={editorFooter(t, onClose, () => form.submit(), onDelete)}
     >
       <Form form={form} layout="vertical" onFinish={(v) => onSave({ title: (v.title as string).trim(), weight: v.weight })}>
         <Form.Item name="title" label={t("config.fields.position")} rules={[{ required: true, message: t("assets.form.required") }]}>
