@@ -14,7 +14,3 @@ function Placeholder({ titleKey }: { titleKey: string }) {
 
 export const BookingPage = () => <Placeholder titleKey="nav.booking" />;
 export const ReportsPage = () => <Placeholder titleKey="nav.reports" />;
-export const ConfigPage = () => <Placeholder titleKey="nav.config" />;
-
-// Логин делаем в самом конце — пока пустая заглушка.
-export const LoginPage = () => <Placeholder titleKey="common.logout" />;

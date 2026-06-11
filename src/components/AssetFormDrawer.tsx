@@ -3,10 +3,9 @@ import { Button, DatePicker, Drawer, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { MOCK_USERS } from "@/data/mock";
-import { ASSET_TYPE_ATTRIBUTES } from "@/config/assetTypes";
+import { useConfig } from "@/store/ConfigContext";
 import type { Equipment, EquipmentStatus, EquipmentType } from "@/types";
 
-const TYPES: EquipmentType[] = ["workstation", "printer", "multimedia"];
 const STATUSES: EquipmentStatus[] = ["in_use", "repair", "decommissioned"];
 
 export function AssetFormDrawer({
@@ -23,6 +22,7 @@ export function AssetFormDrawer({
   onUpdate: (asset: Equipment) => void;
 }) {
   const { t } = useTranslation();
+  const { attributesForType, assetTypes } = useConfig();
   const [form] = Form.useForm();
   const selectedType = Form.useWatch("type", form) as EquipmentType | undefined;
 
@@ -47,8 +47,8 @@ export function AssetFormDrawer({
     const type = values.type as EquipmentType;
     const rawAttrs = (values.attributes as Record<string, string>) ?? {};
     const attributes: Record<string, string> = {};
-    for (const key of ASSET_TYPE_ATTRIBUTES[type]) {
-      if (rawAttrs[key]) attributes[key] = rawAttrs[key];
+    for (const attr of attributesForType(type)) {
+      if (rawAttrs[attr.key]) attributes[attr.key] = rawAttrs[attr.key];
     }
     const warranty = values.warrantyUntil as dayjs.Dayjs | null | undefined;
     const payload = {
@@ -87,7 +87,7 @@ export function AssetFormDrawer({
         <Form.Item name="type" label={t("assetCard.type")} rules={[{ required: true, message: t("assets.form.required") }]}>
           <Select
             placeholder={t("assets.form.typePlaceholder")}
-            options={TYPES.map((tp) => ({ value: tp, label: t(`equipmentType.${tp}`) }))}
+            options={assetTypes.map((tp) => ({ value: tp.key, label: tp.name }))}
           />
         </Form.Item>
 
@@ -128,10 +128,10 @@ export function AssetFormDrawer({
           />
         </Form.Item>
 
-        {/* Динамические поля по типу актива */}
+        {/* Динамические поля по типу актива (из конфигурации) */}
         {selectedType &&
-          ASSET_TYPE_ATTRIBUTES[selectedType].map((key) => (
-            <Form.Item key={key} name={["attributes", key]} label={t(`assetAttr.${key}`)}>
+          attributesForType(selectedType).map((attr) => (
+            <Form.Item key={attr.key} name={["attributes", attr.key]} label={attr.label}>
               <Input maxLength={60} />
             </Form.Item>
           ))}

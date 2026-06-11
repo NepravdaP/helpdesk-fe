@@ -12,6 +12,7 @@ export type Capability =
   | "tickets.delete"
   | "booking.view" // оставлять заявки на бронь
   | "booking.manage" // администрирование броней залов
+  | "booking.assignManagers" // назначать сотрудников управляющими бронями
   | "assets.view"
   | "assets.create"
   | "assets.edit"
@@ -32,6 +33,7 @@ export const ALL_CAPABILITIES: Capability[] = [
   "tickets.delete",
   "booking.view",
   "booking.manage",
+  "booking.assignManagers",
   "assets.view",
   "assets.create",
   "assets.edit",
@@ -64,6 +66,7 @@ const ADMIN: Capability[] = [
   "tickets.delete",
   "assets.create",
   "assets.delete",
+  "booking.assignManagers",
   "reports.view",
   "dashboard.full",
 ];
@@ -75,11 +78,12 @@ export const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
   it: IT,
   // Администратор: всё, что у IT, плюс отчёты, полный дашборд, удаление заявок и техники.
   admin: ADMIN,
-  // Суперадминистратор: всё, включая конфигурацию типов и статусов.
+  // Суперадминистратор: всё, включая конфигурацию.
   superadmin: ALL_CAPABILITIES,
-  // Администратор залов: создание заявок, бронь, администрирование броней, справочник.
-  room_admin: ["tickets.create", "booking.view", "booking.manage", "directory.view"],
 };
+
+// booking.manage не выдаётся ролью: суперадмин назначает сотрудников
+// для управления бронями в конфигураторе (флаг canManageBookings у пользователя).
 
 export function can(role: Role, capability: Capability): boolean {
   return ROLE_CAPABILITIES[role].includes(capability);
