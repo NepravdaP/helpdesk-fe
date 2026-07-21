@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { Button, DatePicker, Drawer, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { MOCK_USERS } from "@/data/mock";
 import { useConfig } from "@/store/ConfigContext";
+import { useUsers } from "@/store/UsersContext";
 import type { Equipment, EquipmentStatus, EquipmentType } from "@/types";
 
 const STATUSES: EquipmentStatus[] = ["in_use", "repair", "decommissioned"];
@@ -23,6 +23,7 @@ export function AssetFormDrawer({
 }) {
   const { t } = useTranslation();
   const { attributesForType, assetTypes } = useConfig();
+  const { users } = useUsers();
   const [form] = Form.useForm();
   const selectedType = Form.useWatch("type", form) as EquipmentType | undefined;
   const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
