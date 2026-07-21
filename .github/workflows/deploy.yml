@@ -1,0 +1,24 @@
+name: Deploy frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        working-directory: /opt/helpdesk/frontend
+        run: git pull origin main
+
+      - name: Rebuild frontend container
+        working-directory: /opt/helpdesk
+        run: |
+          docker compose build frontend
+          docker compose up -d --force-recreate frontend
+
+      - name: Show status
+        working-directory: /opt/helpdesk
+        run: docker compose ps frontend
