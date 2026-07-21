@@ -118,6 +118,10 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
           })
           .catch(fail);
       },
+      updateTicket: (ticket) => {
+        setTickets((prev) => prev.map((r) => (r.id === ticket.id ? ticket : r)));
+        push(ticket.id, { kind: "edited" });
+      },
       setStatus: (id, status) => {
         ticketsApi
           .setStatus(id, status)
