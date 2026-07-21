@@ -21,8 +21,7 @@
     "employee": "Сотрудник",
     "it": "IT-специалист",
     "admin": "Администратор",
-    "superadmin": "Суперадмин",
-    "room_admin": "Администратор залов"
+    "superadmin": "Суперадмин"
   },
   "common": {
     "search": "Поиск",
@@ -40,7 +39,9 @@
     "logout": "Выйти",
     "actAs": "Войти как",
     "empty": "Нет данных",
-    "inDevelopment": "Раздел в разработке"
+    "inDevelopment": "Раздел в разработке",
+    "save": "Сохранить",
+    "add": "Добавить"
   },
   "tickets": {
     "title": "Заявки",
@@ -50,7 +51,7 @@
     "col": {
       "id": "№",
       "title": "Тема",
-      "type": "Тип",
+      "type": "Сервис",
       "priority": "Приоритет",
       "status": "Статус",
       "group": "Группа исполнителей",
@@ -60,8 +61,9 @@
       "updatedAt": "Дата изменения"
     },
     "status": {
+      "request": "Запрос",
       "open": "Открыта",
-      "in_progress": "В работе",
+      "clarification": "Требует уточнения",
       "closed": "Закрыта"
     },
     "priority": {
@@ -85,26 +87,28 @@
     "filter": {
       "status": "Статус",
       "priority": "Приоритет",
-      "type": "Тип"
+      "type": "Сервис"
     },
     "form": {
       "subject": "Тема",
       "subjectPlaceholder": "Кратко опишите проблему",
       "type": "Тип заявки",
-      "typePlaceholder": "Выберите тип",
+      "typePlaceholder": "Выберите сервис",
+      "editTitle": "Редактирование заявки",
       "description": "Описание",
       "descriptionPlaceholder": "Подробности: что произошло, где, с какого момента",
       "requester": "Заявитель",
       "requesterPlaceholder": "Поиск пользователя…",
       "equipment": "Актив",
       "equipmentPlaceholder": "Поиск актива…",
-      "derivedTitle": "Параметры по типу заявки",
-      "derivedHint": "Приоритет, группа исполнителей и срок определяются типом заявки — их настраивает суперадмин.",
+      "derivedTitle": "Срок по типу заявки",
+      "derivedHint": "Срок исполнения определяется выбранным типом заявки.",
       "sla": "Срок исполнения",
       "hours": "ч",
-      "selectTypeFirst": "Выберите тип заявки",
+      "selectTypeFirst": "Выберите сервис",
       "submit": "Создать заявку",
-      "required": "Заполните поле"
+      "required": "Заполните поле",
+      "priorityPlaceholder": "Выберите приоритет"
     },
     "detail": {
       "changeStatus": "Статус",
@@ -121,7 +125,8 @@
         "created": "Заявка создана",
         "status": "Статус изменён: {{status}}",
         "assigned": "Назначен исполнитель: {{name}}",
-        "unassigned": "Исполнитель снят"
+        "unassigned": "Исполнитель снят",
+        "edited": "Заявка изменена"
       }
     },
     "unassigned": "—"
@@ -146,7 +151,8 @@
     "orgDivision": "Департамент",
     "orgTitle": "Должность",
     "tickets": "Заявки пользователя",
-    "equipment": "Закреплённая техника"
+    "equipment": "Закреплённая техника",
+    "bookingManager": "Управляет бронями"
   },
   "users": {
     "searchPlaceholder": "Поиск по ФИО, логину, отделу…",
@@ -157,7 +163,9 @@
       "department": "Департамент/Отдел",
       "email": "E-mail"
     },
-    "filter": { "role": "Роль" }
+    "filter": {
+      "role": "Роль"
+    }
   },
   "directory": {
     "tabAlphabet": "По алфавиту",
@@ -177,8 +185,13 @@
   },
   "assets": {
     "searchPlaceholder": "Поиск по модели или инв. номеру…",
-    "col": { "model": "Наименование" },
-    "filter": { "type": "Тип", "status": "Статус" },
+    "col": {
+      "model": "Наименование"
+    },
+    "filter": {
+      "type": "Тип",
+      "status": "Статус"
+    },
     "add": "Добавить актив",
     "deleteConfirm": "Удалить этот актив?",
     "form": {
@@ -186,7 +199,8 @@
       "edit": "Редактирование актива",
       "submit": "Сохранить",
       "required": "Заполните поле",
-      "typePlaceholder": "Выберите тип",
+      "typePlaceholder": "Выберите сервис",
+      "editTitle": "Редактирование заявки",
       "statusPlaceholder": "Выберите статус",
       "assigneePlaceholder": "Поиск пользователя…",
       "warrantyPlaceholder": "Выберите дату"
@@ -205,5 +219,74 @@
     "in_use": "В эксплуатации",
     "repair": "В ремонте",
     "decommissioned": "Списано"
+  },
+  "userForm": {
+    "title": "Редактирование пользователя",
+    "adHint": "Логин и e-mail синхронизируются из Active Directory и недоступны для правки.",
+    "login": "Логин",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "middleName": "Отчество",
+    "bookingManager": "Управление бронированием залов"
+  },
+  "config": {
+    "subtitle": "Справочники системы. Настраивает суперадмин.",
+    "open": "Настроить",
+    "save": "Сохранить",
+    "services": {
+      "title": "Сервисы",
+      "desc": "Список сервисов, их приоритет, группа и срок."
+    },
+    "assetTypes": {
+      "title": "Типы активов",
+      "desc": "Типы оборудования и их атрибуты (MAC, IP и т.п.)."
+    },
+    "statuses": {
+      "title": "Статусы заявок",
+      "desc": "Названия статусов заявок."
+    },
+    "weights": {
+      "title": "Должности",
+      "desc": "Должности и их вес для сортировки в справочнике."
+    },
+    "booking": {
+      "title": "Управление бронированием",
+      "desc": "Сотрудники, которые могут администрировать брони залов."
+    },
+    "fields": {
+      "name": "Название",
+      "priority": "Приоритет",
+      "group": "Группа",
+      "sla": "Срок, ч",
+      "key": "Ключ",
+      "label": "Подпись",
+      "weight": "Вес",
+      "position": "Должность",
+      "manage": "Управление бронями",
+      "attributes": "Атрибуты"
+    },
+    "addService": "Добавить сервис",
+    "addWeight": "Добавить должность",
+    "addAttribute": "Добавить атрибут",
+    "itemsCount": "элементов: {{count}}",
+    "peopleCount": "назначено: {{count}}",
+    "noManagers": "Никто не назначен",
+    "back": "Назад",
+    "serviceTypes": "Типы заявок",
+    "addTicketType": "Добавить тип заявки",
+    "deleteConfirm": "Удалить элемент?",
+    "newService": "Новый сервис",
+    "editServiceTitle": "Сервис",
+    "newTicketType": "Новый тип заявки",
+    "editTicketType": "Тип заявки",
+    "newAttribute": "Новый атрибут",
+    "editAttribute": "Атрибут",
+    "editWeight": "Должность",
+    "newWeight": "Новая должность",
+    "typesCount": "типов: {{count}}",
+    "attrCount": "полей: {{count}}",
+    "addAssetType": "Добавить тип актива",
+    "newAssetType": "Новый тип актива",
+    "editAssetType": "Тип актива"
   }
 }

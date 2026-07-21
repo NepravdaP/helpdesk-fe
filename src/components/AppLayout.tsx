@@ -42,7 +42,7 @@ const NAV: NavItem[] = [
   { key: "config", path: "/config", icon: <SettingOutlined />, labelKey: "nav.config", group: "management", cap: "config.manage" },
 ];
 
-const ROLE_OPTIONS: Role[] = ["employee", "it", "admin", "superadmin", "room_admin"];
+const ROLE_OPTIONS: Role[] = ["employee", "it", "admin", "superadmin"];
 
 export function AppLayout() {
   const { t, i18n } = useTranslation();
@@ -88,7 +88,7 @@ export function AppLayout() {
           style={{ borderInlineEnd: "none", background: "transparent" }}
           onClick={({ key }) => {
             const item = NAV.find((n) => n.key === key);
-            if (item) navigate(item.path);
+            if (item) navigate(item.path, { state: { ts: Date.now() } });
           }}
         />
       </Sider>

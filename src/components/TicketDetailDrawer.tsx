@@ -13,11 +13,12 @@ import {
   Timeline,
   Typography,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
-import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
+import { MOCK_EQUIPMENT } from "@/data/mock";
+import { useUsers } from "@/store/UsersContext";
 import { formatDateTime } from "@/utils/format";
 import type {
   ActivityEntry,
@@ -27,8 +28,9 @@ import type {
 } from "@/types";
 
 const STATUS_COLOR: Record<TicketStatus, string> = {
+  request: "default",
   open: "blue",
-  in_progress: "gold",
+  clarification: "gold",
   closed: "green",
 };
 const PRIORITY_COLOR: Record<TicketPriority, string> = {
@@ -41,6 +43,7 @@ const ACT_COLOR: Record<ActivityEntry["kind"], string> = {
   status: "blue",
   assignee: "gold",
   comment: "gray",
+  edited: "purple",
 };
 
 export function TicketDetailDrawer({
@@ -52,6 +55,7 @@ export function TicketDetailDrawer({
   onAddComment,
   onOpenUser,
   onOpenAsset,
+  onEdit,
   onDelete,
 }: {
   ticket: TicketRow | null;
@@ -62,11 +66,15 @@ export function TicketDetailDrawer({
   onAddComment: (id: number, text: string) => void;
   onOpenUser: (id: number) => void;
   onOpenAsset: (id: number) => void;
+  onEdit: () => void;
   onDelete: (id: number) => void;
 }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { users } = useUsers();
   const [comment, setComment] = useState("");
+
+  const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
 
   const canEdit = can(user.role, "tickets.edit");
   const canDelete = can(user.role, "tickets.delete");
@@ -91,6 +99,8 @@ export function TicketDetailDrawer({
           : t("tickets.detail.act.unassigned");
       case "comment":
         return e.comment ?? "";
+      case "edited":
+        return t("tickets.detail.act.edited");
     }
   };
 
@@ -108,16 +118,25 @@ export function TicketDetailDrawer({
       onClose={onClose}
       destroyOnClose
       extra={
-        ticket && canDelete ? (
-          <Popconfirm
-            title={t("tickets.detail.deleteConfirm")}
-            okButtonProps={{ danger: true }}
-            onConfirm={() => onDelete(ticket.id)}
-          >
-            <Button danger type="text" icon={<DeleteOutlined />}>
-              {t("tickets.detail.delete")}
-            </Button>
-          </Popconfirm>
+        ticket && (canEdit || canDelete) ? (
+          <Space size={4}>
+            {canEdit && (
+              <Button type="text" icon={<EditOutlined />} onClick={onEdit}>
+                {t("common.edit")}
+              </Button>
+            )}
+            {canDelete && (
+              <Popconfirm
+                title={t("tickets.detail.deleteConfirm")}
+                okButtonProps={{ danger: true }}
+                onConfirm={() => onDelete(ticket.id)}
+              >
+                <Button danger type="text" icon={<DeleteOutlined />}>
+                  {t("tickets.detail.delete")}
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
         ) : undefined
       }
     >
@@ -145,8 +164,9 @@ export function TicketDetailDrawer({
                 style={{ width: 220 }}
                 onChange={(v) => onStatusChange(ticket.id, v)}
                 options={[
+                  { value: "request", label: t("tickets.status.request") },
                   { value: "open", label: t("tickets.status.open") },
-                  { value: "in_progress", label: t("tickets.status.in_progress") },
+                  { value: "clarification", label: t("tickets.status.clarification") },
                   { value: "closed", label: t("tickets.status.closed") },
                 ]}
               />
@@ -164,7 +184,7 @@ export function TicketDetailDrawer({
                 placeholder={t("tickets.detail.assigneePlaceholder")}
                 style={{ width: 220 }}
                 onChange={(v) => onAssigneeChange(ticket.id, v ?? null)}
-                options={MOCK_USERS}
+                options={userOptions}
               />
             </div>
           </Space>
@@ -172,9 +192,6 @@ export function TicketDetailDrawer({
           {!canEdit && <Alert type="info" showIcon message={t("tickets.detail.readonlyHint")} />}
 
           <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label={t("tickets.col.group")}>
-              {ticket.group ? t(`tickets.ticketGroup.${ticket.group}`) : "—"}
-            </Descriptions.Item>
             <Descriptions.Item label={t("tickets.col.requester")}>
               <Typography.Link onClick={() => onOpenUser(ticket.createdById)}>
                 {ticket.requesterName}

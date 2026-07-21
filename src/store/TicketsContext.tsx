@@ -1,103 +1,164 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { App } from "antd";
 import { useAuth } from "@/auth/AuthContext";
-import { INITIAL_TICKETS, MOCK_USERS } from "@/data/mock";
+import { ticketsApi } from "@/api/tickets";
+import { ApiError } from "@/api/client";
 import type { ActivityEntry, TicketRow, TicketStatus } from "@/types";
 
-// Стартовая история для мок-заявок: создание + (если есть) назначение/смена статуса.
-function seedActivity(tickets: TicketRow[]): Record<number, ActivityEntry[]> {
-  const map: Record<number, ActivityEntry[]> = {};
-  for (const tk of tickets) {
-    const entries: ActivityEntry[] = [
-      { id: tk.id * 10 + 1, kind: "created", at: tk.createdAt, author: tk.requesterName },
-    ];
-    if (tk.assigneeName) {
-      entries.push({ id: tk.id * 10 + 2, kind: "assignee", at: tk.updatedAt, author: tk.assigneeName, assignee: tk.assigneeName });
-    }
-    if (tk.status !== "open") {
-      entries.push({ id: tk.id * 10 + 3, kind: "status", at: tk.updatedAt, author: tk.assigneeName ?? tk.requesterName, status: tk.status });
-    }
-    map[tk.id] = entries;
-  }
-  return map;
-}
-
-let activitySeq = 1;
+// Данные заявок приходят из API. Бэкенд сам фильтрует список по правам пользователя.
 
 interface TicketsContextValue {
   tickets: TicketRow[];
   activity: Record<number, ActivityEntry[]>;
+  loading: boolean;
   createTicket: (ticket: TicketRow) => void;
+  updateTicket: (ticket: TicketRow) => void;
   setStatus: (id: number, status: TicketStatus) => void;
   setAssignee: (id: number, userId: number | null) => void;
   addComment: (id: number, text: string) => void;
   deleteTicket: (id: number) => void;
+  loadActivity: (id: number) => void;
 }
 
 const TicketsContext = createContext<TicketsContextValue | null>(null);
 
 export function TicketsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [tickets, setTickets] = useState<TicketRow[]>(INITIAL_TICKETS);
-  const [activity, setActivity] = useState<Record<number, ActivityEntry[]>>(() =>
-    seedActivity(INITIAL_TICKETS),
+  const { message } = App.useApp();
+  const [tickets, setTickets] = useState<TicketRow[]>([]);
+  const [activity, setActivity] = useState<Record<number, ActivityEntry[]>>({});
+  const [loading, setLoading] = useState(true);
+
+  const fail = useCallback(
+    (e: unknown) => {
+      const text = e instanceof ApiError ? e.message : "Не удалось выполнить операцию";
+      message.error(text);
+    },
+    [message],
   );
 
-  const value = useMemo<TicketsContextValue>(() => {
-    const push = (id: number, entry: Omit<ActivityEntry, "id" | "at" | "author">) => {
-      const full: ActivityEntry = {
-        id: Date.now() * 100 + activitySeq++,
-        at: new Date().toISOString(),
-        author: user.fullName,
-        ...entry,
-      };
-      setActivity((prev) => ({ ...prev, [id]: [...(prev[id] ?? []), full] }));
-    };
-    const touch = (id: number) =>
-      setTickets((prev) => prev.map((r) => (r.id === id ? { ...r, updatedAt: new Date().toISOString() } : r)));
+  const replaceRow = useCallback((row: TicketRow) => {
+    setTickets((prev) => prev.map((r) => (r.id === row.id ? row : r)));
+  }, []);
 
-    return {
+  const refreshActivity = useCallback(
+    async (id: number) => {
+      try {
+        const list = await ticketsApi.activity(id);
+        setActivity((prev) => ({ ...prev, [id]: list }));
+      } catch (e) {
+        fail(e);
+      }
+    },
+    [fail],
+  );
+
+  // Загрузка списка при входе и при смене пользователя (роль влияет на выдачу).
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    ticketsApi
+      .list()
+      .then((list) => {
+        if (alive) setTickets(list);
+      })
+      .catch((e) => {
+        if (alive) fail(e);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [user.id, fail]);
+
+  const value = useMemo<TicketsContextValue>(
+    () => ({
       tickets,
       activity,
+      loading,
+      loadActivity: (id) => void refreshActivity(id),
       createTicket: (ticket) => {
-        setTickets((prev) => [ticket, ...prev]);
-        setActivity((prev) => ({
-          ...prev,
-          [ticket.id]: [
-            { id: Date.now() * 100 + activitySeq++, kind: "created", at: ticket.createdAt, author: ticket.requesterName },
-          ],
-        }));
+        ticketsApi
+          .create({
+            title: ticket.title,
+            description: ticket.description,
+            type: ticket.type,
+            priority: ticket.priority,
+            equipmentId: ticket.equipmentId,
+            createdById: ticket.createdById,
+          })
+          .then((row) => {
+            setTickets((prev) => [row, ...prev]);
+            message.success("Заявка создана");
+          })
+          .catch(fail);
+      },
+      updateTicket: (ticket) => {
+        ticketsApi
+          .update(ticket.id, {
+            title: ticket.title,
+            description: ticket.description,
+            type: ticket.type,
+            priority: ticket.priority,
+            equipmentId: ticket.equipmentId,
+          })
+          .then((row) => {
+            replaceRow(row);
+            void refreshActivity(row.id);
+          })
+          .catch(fail);
       },
       setStatus: (id, status) => {
-        setTickets((prev) =>
-          prev.map((r) => (r.id === id ? { ...r, status, updatedAt: new Date().toISOString() } : r)),
-        );
-        push(id, { kind: "status", status });
+        ticketsApi
+          .setStatus(id, status)
+          .then((row) => {
+            replaceRow(row);
+            void refreshActivity(id);
+          })
+          .catch(fail);
       },
       setAssignee: (id, userId) => {
-        const u = MOCK_USERS.find((x) => x.value === userId) ?? null;
-        setTickets((prev) =>
-          prev.map((r) =>
-            r.id === id
-              ? { ...r, assignedToId: userId, assigneeName: u?.label ?? null, updatedAt: new Date().toISOString() }
-              : r,
-          ),
-        );
-        push(id, { kind: "assignee", assignee: u?.label ?? null });
+        ticketsApi
+          .setAssignee(id, userId)
+          .then((row) => {
+            replaceRow(row);
+            void refreshActivity(id);
+          })
+          .catch(fail);
       },
       addComment: (id, text) => {
-        push(id, { kind: "comment", comment: text });
-        touch(id);
+        ticketsApi
+          .addComment(id, text)
+          .then(() => Promise.all([refreshActivity(id), ticketsApi.get(id).then(replaceRow)]))
+          .catch(fail);
       },
       deleteTicket: (id) => {
-        setTickets((prev) => prev.filter((r) => r.id !== id));
-        setActivity((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
+        ticketsApi
+          .remove(id)
+          .then(() => {
+            setTickets((prev) => prev.filter((r) => r.id !== id));
+            setActivity((prev) => {
+              const next = { ...prev };
+              delete next[id];
+              return next;
+            });
+            message.success("Заявка удалена");
+          })
+          .catch(fail);
       },
-    };
-  }, [tickets, activity, user.fullName]);
+    }),
+    [tickets, activity, loading, message, fail, replaceRow, refreshActivity],
+  );
 
   return <TicketsContext.Provider value={value}>{children}</TicketsContext.Provider>;
 }

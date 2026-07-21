@@ -1,7 +1,7 @@
 // Общие типы предметной области.
 // Держим их в одном месте — позже они должны совпасть со схемой Prisma на бэке.
 
-export type Role = "employee" | "it" | "admin" | "superadmin" | "room_admin";
+export type Role = "employee" | "it" | "admin" | "superadmin";
 
 export interface User {
   id: number;
@@ -20,13 +20,14 @@ export interface User {
   orgDepartment?: string; // отдел (department)
   orgDivision?: string; // подразделение (division)
   orgTitle?: string; // должность (title)
+  canManageBookings?: boolean; // назначается суперадмином в конфигураторе
 }
 
 // ---- HelpDesk ----
-export type TicketStatus = "open" | "in_progress" | "closed";
+export type TicketStatus = "request" | "open" | "clarification" | "closed";
 export type TicketPriority = "low" | "medium" | "high";
-export type TicketType = "repair" | "replacement" | "software" | "access" | "other";
-export type TicketGroup = "helpdesk" | "network" | "print" | "software";
+// Сервис заявки (бывш. «тип») — теперь конфигурируемый суперадмином, поэтому строка-ключ.
+export type TicketType = string;
 
 export interface Ticket {
   id: number;
@@ -35,20 +36,11 @@ export interface Ticket {
   type: TicketType;
   priority: TicketPriority;
   status: TicketStatus;
-  group: TicketGroup | null; // группа исполнителей
   createdById: number; // заявитель (FK → users)
   assignedToId: number | null;
   equipmentId: number | null;
   createdAt: string; // ISO — дата создания
   updatedAt: string; // ISO — дата изменения
-}
-
-// Конфигурация типа заявки. То, что задаёт суперадмин:
-// от типа зависят приоритет, группа исполнителей и срок исполнения (SLA).
-export interface TicketTypeConfig {
-  priority: TicketPriority;
-  group: TicketGroup;
-  slaHours: number; // нормативный срок исполнения, часов
 }
 
 // Строка для таблицы/карточки — заявка с «развёрнутыми» именами (на бэке придут из JOIN).
@@ -58,7 +50,7 @@ export type TicketRow = Ticket & {
 };
 
 // Лента действий по заявке (на бэке — отдельная таблица истории/комментариев).
-export type ActivityKind = "created" | "status" | "assignee" | "comment";
+export type ActivityKind = "created" | "status" | "assignee" | "comment" | "edited";
 export interface ActivityEntry {
   id: number;
   kind: ActivityKind;
@@ -71,7 +63,8 @@ export interface ActivityEntry {
 
 // ---- Инвентаризация ----
 export type EquipmentStatus = "in_use" | "repair" | "decommissioned";
-export type EquipmentType = "workstation" | "printer" | "multimedia";
+// Тип актива — конфигурируемый суперадмином, поэтому строка-ключ.
+export type EquipmentType = string;
 
 export interface Equipment {
   id: number;
