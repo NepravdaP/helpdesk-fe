@@ -25,6 +25,7 @@ export function AssetFormDrawer({
   const { attributesForType, assetTypes } = useConfig();
   const [form] = Form.useForm();
   const selectedType = Form.useWatch("type", form) as EquipmentType | undefined;
+  const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
 
   const initialValues = useMemo(
     () =>
@@ -124,7 +125,7 @@ export function AssetFormDrawer({
             showSearch
             optionFilterProp="label"
             placeholder={t("assets.form.assigneePlaceholder")}
-            options={MOCK_USERS}
+            options={userOptions}
           />
         </Form.Item>
 

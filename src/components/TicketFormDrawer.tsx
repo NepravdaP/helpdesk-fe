@@ -2,7 +2,9 @@ import { useMemo } from "react";
 import { Button, Drawer, Form, Input, Select, Space, Tag, Typography, theme } from "antd";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
+import { can } from "@/auth/permissions";
 import { useConfig } from "@/store/ConfigContext";
+import { useUsers } from "@/store/UsersContext";
 import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
 import type { TicketPriority, TicketRow } from "@/types";
 
@@ -37,8 +39,14 @@ export function TicketFormDrawer({
   const { t } = useTranslation();
   const { user } = useAuth();
   const { services, ticketTypeByKey } = useConfig();
+  const { users } = useUsers();
   const { token } = theme.useToken();
   const [form] = Form.useForm<FormValues>();
+
+  // Заявителя вправе менять только тот, кто видит все заявки (создание «от имени»).
+  const canActOnBehalf = can(user.role, "tickets.viewAll");
+  const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
+
 
   const selectedType = Form.useWatch("type", form) as string | undefined;
   const svc = selectedType ? ticketTypeByKey(selectedType) : null;
@@ -79,7 +87,7 @@ export function TicketFormDrawer({
         type: values.type,
         priority: values.priority,
         createdById: values.requesterId,
-        requesterName: requester?.label ?? ticket.requesterName,
+        requesterName: requester?.fullName ?? ticket.requesterName,
         equipmentId: values.equipmentId ?? null,
         updatedAt: now,
       });
@@ -96,7 +104,7 @@ export function TicketFormDrawer({
         equipmentId: values.equipmentId ?? null,
         createdAt: now,
         updatedAt: now,
-        requesterName: requester?.label ?? "—",
+        requesterName: requester?.fullName ?? "—",
         assigneeName: null,
       });
     }
@@ -144,7 +152,13 @@ export function TicketFormDrawer({
         </Form.Item>
 
         <Form.Item name="requesterId" label={t("tickets.form.requester")} rules={[{ required: true, message: t("tickets.form.required") }]}>
-          <Select showSearch optionFilterProp="label" placeholder={t("tickets.form.requesterPlaceholder")} options={MOCK_USERS} />
+          <Select
+            showSearch
+            optionFilterProp="label"
+            disabled={!canActOnBehalf}
+            placeholder={t("tickets.form.requesterPlaceholder")}
+            options={userOptions}
+          />
         </Form.Item>
 
         <Form.Item name="title" label={t("tickets.form.subject")} rules={[{ required: true, message: t("tickets.form.required") }]}>

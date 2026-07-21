@@ -22,7 +22,7 @@ interface EntityCardsValue {
 const EntityCardsContext = createContext<EntityCardsValue | null>(null);
 
 export function EntityCardsProvider({ children }: { children: ReactNode }) {
-  const { tickets, activity, createTicket, updateTicket, setStatus, setAssignee, addComment, deleteTicket } =
+  const { tickets, activity, createTicket, updateTicket, setStatus, setAssignee, addComment, deleteTicket, loadActivity } =
     useTickets();
   const { assets, createAsset, updateAsset, deleteAsset } = useAssets();
   const { users, updateUser } = useUsers();
@@ -42,6 +42,7 @@ export function EntityCardsProvider({ children }: { children: ReactNode }) {
     setUserId(null);
     setAssetId(null);
     setTicketId(id);
+    loadActivity(id);
   };
   const openUser = (id: number) => setUserId(id);
   const openAsset = (id: number) => setAssetId(id);

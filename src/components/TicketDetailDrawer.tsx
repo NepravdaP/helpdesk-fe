@@ -17,7 +17,8 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
-import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
+import { MOCK_EQUIPMENT } from "@/data/mock";
+import { useUsers } from "@/store/UsersContext";
 import { formatDateTime } from "@/utils/format";
 import type {
   ActivityEntry,
@@ -70,7 +71,10 @@ export function TicketDetailDrawer({
 }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { users } = useUsers();
   const [comment, setComment] = useState("");
+
+  const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
 
   const canEdit = can(user.role, "tickets.edit");
   const canDelete = can(user.role, "tickets.delete");
@@ -180,7 +184,7 @@ export function TicketDetailDrawer({
                 placeholder={t("tickets.detail.assigneePlaceholder")}
                 style={{ width: 220 }}
                 onChange={(v) => onAssigneeChange(ticket.id, v ?? null)}
-                options={MOCK_USERS}
+                options={userOptions}
               />
             </div>
           </Space>
