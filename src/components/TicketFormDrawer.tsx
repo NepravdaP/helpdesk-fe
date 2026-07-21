@@ -5,7 +5,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
 import { useConfig } from "@/store/ConfigContext";
 import { useUsers } from "@/store/UsersContext";
-import { MOCK_USERS, MOCK_EQUIPMENT } from "@/data/mock";
+import { MOCK_EQUIPMENT } from "@/data/mock";
 import type { TicketPriority, TicketRow } from "@/types";
 
 const PRIORITY_COLOR: Record<TicketPriority, string> = {
@@ -77,7 +77,7 @@ export function TicketFormDrawer({
   };
 
   const handleSubmit = (values: FormValues) => {
-    const requester = MOCK_USERS.find((u) => u.value === values.requesterId);
+    const requester = users.find((u) => u.id === values.requesterId);
     const now = new Date().toISOString();
     if (ticket) {
       onUpdate({
