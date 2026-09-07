@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { Button, DatePicker, Drawer, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { useConfig } from "@/store/ConfigContext";
 import { useUsers } from "@/store/UsersContext";
+import { useConfig } from "@/store/ConfigContext";
 import type { Equipment, EquipmentStatus, EquipmentType } from "@/types";
 
 const STATUSES: EquipmentStatus[] = ["in_use", "repair", "decommissioned"];

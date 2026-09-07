@@ -39,8 +39,7 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
 
   const fail = useCallback(
     (e: unknown) => {
-      const text =
-        e instanceof ApiError ? e.message : "Не удалось выполнить операцию";
+      const text = e instanceof ApiError ? e.message : "Не удалось выполнить операцию";
       message.error(text);
     },
     [message],
@@ -119,7 +118,6 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
           })
           .catch(fail);
       },
-
       setStatus: (id, status) => {
         ticketsApi
           .setStatus(id, status)
@@ -141,12 +139,7 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
       addComment: (id, text) => {
         ticketsApi
           .addComment(id, text)
-          .then(() =>
-            Promise.all([
-              refreshActivity(id),
-              ticketsApi.get(id).then(replaceRow),
-            ]),
-          )
+          .then(() => Promise.all([refreshActivity(id), ticketsApi.get(id).then(replaceRow)]))
           .catch(fail);
       },
       deleteTicket: (id) => {
@@ -167,9 +160,7 @@ export function TicketsProvider({ children }: { children: ReactNode }) {
     [tickets, activity, loading, message, fail, replaceRow, refreshActivity],
   );
 
-  return (
-    <TicketsContext.Provider value={value}>{children}</TicketsContext.Provider>
-  );
+  return <TicketsContext.Provider value={value}>{children}</TicketsContext.Provider>;
 }
 
 export function useTickets(): TicketsContextValue {

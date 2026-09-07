@@ -1,6 +1,9 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { App } from "antd";
 import { POSITION_WEIGHTS } from "@/config/positionWeights";
 import { ASSET_TYPE_ATTRIBUTES } from "@/config/assetTypes";
+import { configApi } from "@/api/config";
+import { ApiError } from "@/api/client";
 import type { EquipmentType } from "@/types";
 
 // Тип заявки внутри сервиса: задаёт название и срок (SLA). Приоритет выбирается при создании заявки.
@@ -96,9 +99,46 @@ interface ConfigContextValue {
 const ConfigContext = createContext<ConfigContextValue | null>(null);
 
 export function ConfigProvider({ children }: { children: ReactNode }) {
-  const [services, setServices] = useState<ServiceConfig[]>(initialServices);
-  const [weights, setWeights] = useState<PositionWeight[]>(initialWeights);
-  const [assetTypes, setAssetTypes] = useState<AssetTypeConfig[]>(initialAssetTypes);
+  const { message } = App.useApp();
+  const [services, setServicesState] = useState<ServiceConfig[]>(initialServices);
+  const [weights, setWeightsState] = useState<PositionWeight[]>(initialWeights);
+  const [assetTypes, setAssetTypesState] = useState<AssetTypeConfig[]>(initialAssetTypes);
+
+  // Загрузка конфигурации из БД (справочные данные доступны всем аутентифицированным).
+  useEffect(() => {
+    let alive = true;
+    configApi
+      .get()
+      .then((cfg) => {
+        if (!alive) return;
+        if (cfg.services) setServicesState(cfg.services);
+        if (cfg.weights) setWeightsState(cfg.weights);
+        if (cfg.assetTypes) setAssetTypesState(cfg.assetTypes);
+      })
+      .catch(() => {
+        // молча оставляем дефолты, если конфиг недоступен
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const fail = (e: unknown) =>
+    message.error(e instanceof ApiError ? e.message : "Не удалось сохранить конфигурацию");
+
+  // Сохранение секции: оптимистично обновляем стейт, затем синхронизируем с ответом сервера.
+  const setServices = (s: ServiceConfig[]) => {
+    setServicesState(s);
+    configApi.putServices(s).then((cfg) => setServicesState(cfg.services)).catch(fail);
+  };
+  const setWeights = (w: PositionWeight[]) => {
+    setWeightsState(w);
+    configApi.putWeights(w).then((cfg) => setWeightsState(cfg.weights)).catch(fail);
+  };
+  const setAssetTypes = (a: AssetTypeConfig[]) => {
+    setAssetTypesState(a);
+    configApi.putAssetTypes(a).then((cfg) => setAssetTypesState(cfg.assetTypes)).catch(fail);
+  };
 
   const value = useMemo<ConfigContextValue>(() => {
     const weightMap = new Map(weights.map((w) => [w.title, w.weight]));

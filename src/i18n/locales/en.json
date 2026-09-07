@@ -253,6 +253,21 @@
       "title": "Booking management",
       "desc": "Employees allowed to manage room bookings."
     },
+    "ldap": {
+      "title": "LDAP / Active Directory",
+      "desc": "Bulk sync of users from the AD directory.",
+      "syncButton": "Synchronize",
+      "syncing": "Synchronizing...",
+      "neverSynced": "Sync has not been run yet",
+      "lastSync": "Last sync: {{time}}",
+      "created": "Created",
+      "updated": "Updated",
+      "skipped": "Skipped",
+      "errorsCount": "Errors",
+      "errorsTitle": "Sync errors",
+      "successMessage": "AD sync completed",
+      "notConfigured": "LDAP is not configured on the server (set LDAP_URL and LDAP_SEARCH_BASE in the backend .env)."
+    },
     "fields": {
       "name": "Name",
       "priority": "Priority",
@@ -288,5 +303,39 @@
     "addAssetType": "Add asset type",
     "newAssetType": "New asset type",
     "editAssetType": "Asset type"
+  },
+  "booking": {
+    "title": "Meeting room booking",
+    "rooms": "Rooms",
+    "capacity": "Capacity",
+    "people": "ppl",
+    "upcoming": "Bookings",
+    "new": "Book a room",
+    "room": "Room",
+    "date": "Date",
+    "time": "Time",
+    "purpose": "Purpose",
+    "organizer": "Organizer",
+    "status": "Status",
+    "cancel": "Cancel",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "noBookings": "No bookings yet",
+    "create": "Create booking",
+    "required": "Required",
+    "overlapHint": "Time must not overlap an existing booking"
+  },
+  "reports": {
+    "title": "Reports & analytics",
+    "tickets": "Tickets",
+    "assets": "Assets",
+    "bookings": "Bookings",
+    "total": "Total",
+    "byStatus": "By status",
+    "byPriority": "By priority",
+    "byType": "By type",
+    "upcomingBookings": "Active bookings",
+    "count": "Count",
+    "empty": "No data"
   }
 }
