@@ -5,6 +5,7 @@ export type AssetInput = Omit<Equipment, "id">;
 
 export const assetsApi = {
   list: () => api<Equipment[]>("/assets"),
+  options: () => api<{ value: number; label: string }[]>("/assets/options"),
   create: (input: AssetInput) => api<Equipment>("/assets", { method: "POST", body: input }),
   update: (id: number, input: AssetInput) =>
     api<Equipment>(`/assets/${id}`, { method: "PATCH", body: input }),
