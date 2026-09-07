@@ -8,8 +8,9 @@ import {
   type ReactNode,
 } from "react";
 import { App } from "antd";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
-import { usersApi } from "@/api/users";
+import { usersApi, type LdapSyncResult } from "@/api/users";
 import { ApiError } from "@/api/client";
 import type { User } from "@/types";
 
@@ -18,8 +19,10 @@ import type { User } from "@/types";
 interface UsersContextValue {
   users: User[];
   loading: boolean;
+  syncing: boolean;
   updateUser: (user: User) => void;
   setBookingManager: (id: number, value: boolean) => void;
+  syncFromLdap: () => Promise<LdapSyncResult | null>;
 }
 
 const UsersContext = createContext<UsersContextValue | null>(null);
@@ -27,8 +30,10 @@ const UsersContext = createContext<UsersContextValue | null>(null);
 export function UsersProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { message } = App.useApp();
+  const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   const fail = useCallback(
     (e: unknown) => {
@@ -40,6 +45,8 @@ export function UsersProvider({ children }: { children: ReactNode }) {
   const replace = useCallback((u: User) => {
     setUsers((prev) => prev.map((x) => (x.id === u.id ? u : x)));
   }, []);
+
+  const reload = useCallback(() => usersApi.list().then(setUsers), []);
 
   useEffect(() => {
     let alive = true;
@@ -64,6 +71,7 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     () => ({
       users,
       loading,
+      syncing,
       updateUser: (u) => {
         usersApi
           .update(u.id, u)
@@ -76,8 +84,24 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       setBookingManager: (id, val) => {
         usersApi.setBookingManager(id, val).then(replace).catch(fail);
       },
+      // Массовая синхронизация с AD: тянет всех пользователей и обновляет список.
+      // Возвращает статистику (created/updated/skipped/errors) для отображения в UI, либо null при ошибке.
+      syncFromLdap: async () => {
+        setSyncing(true);
+        try {
+          const result = await usersApi.ldapSync();
+          await reload();
+          message.success(t("config.ldap.successMessage"));
+          return result;
+        } catch (e) {
+          fail(e);
+          return null;
+        } finally {
+          setSyncing(false);
+        }
+      },
     }),
-    [users, loading, message, fail, replace],
+    [users, loading, syncing, message, fail, replace, reload, t],
   );
 
   return <UsersContext.Provider value={value}>{children}</UsersContext.Provider>;

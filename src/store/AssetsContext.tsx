@@ -18,6 +18,7 @@ import type { Equipment } from "@/types";
 
 interface AssetsContextValue {
   assets: Equipment[];
+  options: { value: number; label: string }[];
   loading: boolean;
   createAsset: (asset: Omit<Equipment, "id">) => void;
   updateAsset: (asset: Equipment) => void;
@@ -30,6 +31,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { message } = App.useApp();
   const [assets, setAssets] = useState<Equipment[]>([]);
+  const [options, setOptions] = useState<{ value: number; label: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   const canView = can(user.role, "assets.view");
@@ -40,6 +42,20 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
     },
     [message],
   );
+
+  // Лёгкий список опций техники доступен всем — для выпадающих списков в заявках.
+  useEffect(() => {
+    let alive = true;
+    assetsApi
+      .options()
+      .then((list) => {
+        if (alive) setOptions(list);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [user.id]);
 
   useEffect(() => {
     if (!canView) {
@@ -68,6 +84,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AssetsContextValue>(
     () => ({
       assets,
+      options,
       loading,
       createAsset: (asset) => {
         assetsApi
@@ -95,7 +112,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
           .catch(fail);
       },
     }),
-    [assets, loading, message, fail],
+    [assets, options, loading, message, fail],
   );
 
   return <AssetsContext.Provider value={value}>{children}</AssetsContext.Provider>;

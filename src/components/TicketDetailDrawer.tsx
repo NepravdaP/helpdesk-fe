@@ -17,7 +17,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
-import { MOCK_EQUIPMENT } from "@/data/mock";
+import { useAssets } from "@/store/AssetsContext";
 import { useUsers } from "@/store/UsersContext";
 import { formatDateTime } from "@/utils/format";
 import type {
@@ -72,6 +72,7 @@ export function TicketDetailDrawer({
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { users } = useUsers();
+  const { options: equipmentOptions } = useAssets();
   const [comment, setComment] = useState("");
 
   const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
@@ -84,7 +85,7 @@ export function TicketDetailDrawer({
   // в загруженном списке, показываем хотя бы его идентификатор, а не прочерк.
   const equipmentLabel =
     ticket?.equipmentId != null
-      ? (MOCK_EQUIPMENT.find((e) => e.value === ticket.equipmentId)?.label ?? `#${ticket.equipmentId}`)
+      ? (equipmentOptions.find((e) => e.value === ticket.equipmentId)?.label ?? `#${ticket.equipmentId}`)
       : "—";
 
   const actText = (e: ActivityEntry): string => {

@@ -13,6 +13,7 @@ import { ConfigProvider as AppConfigProvider } from "@/store/ConfigContext";
 import { UsersProvider } from "@/store/UsersContext";
 import { TicketsProvider } from "@/store/TicketsContext";
 import { AssetsProvider } from "@/store/AssetsContext";
+import { BookingProvider } from "@/store/BookingContext";
 import { EntityCardsProvider } from "@/store/EntityCards";
 import { AppLayout } from "@/components/AppLayout";
 import { RoleGuard, HomeRedirect } from "@/components/RoleGuard";
@@ -22,7 +23,8 @@ import { AssetsPage } from "@/pages/AssetsPage";
 import { UsersPage } from "@/pages/UsersPage";
 import { DirectoryPage } from "@/pages/DirectoryPage";
 import { ConfigPage } from "@/pages/ConfigPage";
-import { BookingPage, ReportsPage } from "@/pages/Placeholders";
+import { BookingPage } from "@/pages/BookingPage";
+import { ReportsPage } from "@/pages/ReportsPage";
 
 // Локаль AntD держим синхронной с языком приложения (i18n).
 const ANTD_LOCALES: Record<string, Locale> = { ru: ruRU, en: enUS };
@@ -54,6 +56,7 @@ export default function App() {
             <UsersProvider>
               <TicketsProvider>
                 <AssetsProvider>
+                  <BookingProvider>
                   <EntityCardsProvider>
             <Routes>
               <Route element={<AppLayout />}>
@@ -125,6 +128,7 @@ export default function App() {
               </Route>
             </Routes>
                   </EntityCardsProvider>
+                  </BookingProvider>
                 </AssetsProvider>
               </TicketsProvider>
             </UsersProvider>

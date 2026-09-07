@@ -5,7 +5,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { can } from "@/auth/permissions";
 import { useConfig } from "@/store/ConfigContext";
 import { useUsers } from "@/store/UsersContext";
-import { MOCK_EQUIPMENT } from "@/data/mock";
+import { useAssets } from "@/store/AssetsContext";
 import type { TicketPriority, TicketRow } from "@/types";
 
 const PRIORITY_COLOR: Record<TicketPriority, string> = {
@@ -40,13 +40,13 @@ export function TicketFormDrawer({
   const { user } = useAuth();
   const { services, ticketTypeByKey } = useConfig();
   const { users } = useUsers();
+  const { options: equipmentOptions } = useAssets();
   const { token } = theme.useToken();
   const [form] = Form.useForm<FormValues>();
 
   // Заявителя вправе менять только тот, кто видит все заявки (создание «от имени»).
   const canActOnBehalf = can(user.role, "tickets.viewAll");
   const userOptions = users.map((u) => ({ value: u.id, label: u.fullName }));
-
 
   const selectedType = Form.useWatch("type", form) as string | undefined;
   const svc = selectedType ? ticketTypeByKey(selectedType) : null;
@@ -170,7 +170,7 @@ export function TicketFormDrawer({
         </Form.Item>
 
         <Form.Item name="equipmentId" label={t("tickets.form.equipment")}>
-          <Select allowClear showSearch optionFilterProp="label" placeholder={t("tickets.form.equipmentPlaceholder")} options={MOCK_EQUIPMENT} />
+          <Select allowClear showSearch optionFilterProp="label" placeholder={t("tickets.form.equipmentPlaceholder")} options={equipmentOptions} />
         </Form.Item>
 
         <div style={{ background: token.colorFillQuaternary, border: `1px solid ${token.colorBorderSecondary}`, borderRadius: 8, padding: "12px 16px" }}>
