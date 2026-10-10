@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  Alert,
   Breadcrumb,
   Button,
   Card,
   Col,
-  Descriptions,
   Empty,
   Form,
   Input,
@@ -28,7 +26,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   RightOutlined,
-  SyncOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import {
@@ -39,8 +36,7 @@ import {
   type AssetTypeConfig,
   type PositionWeight,
 } from "@/store/ConfigContext";
-import { useUsers } from "@/store/UsersContext";
-import type { LdapSyncResult } from "@/api/users";
+import { LdapSection } from "./ConfigLdapSection";
 import { palette } from "@/theme/colors";
 
 // Футер модалки-редактора: слева — удаление (только при редактировании), справа — отмена/сохранить.
@@ -137,7 +133,7 @@ export function ConfigPage() {
         <AssetTypeDetail assetType={assetType} onDeleted={() => setNav({ level: "assetTypes" })} />
       )}
       {nav.level === "weights" && <WeightsList />}
-      {nav.level === "ldap" && <LdapSyncPanel />}
+      {nav.level === "ldap" && <LdapSection />}
     </Space>
   );
 }
@@ -487,72 +483,6 @@ function WeightsList() {
         onSave={save}
         onDelete={editing ? () => setWeights(weights.filter((_, i) => i !== editing.index)) : undefined}
       />
-    </Card>
-  );
-}
-
-// ——— LDAP / Active Directory: массовая синхронизация ———
-function LdapSyncPanel() {
-  const { t } = useTranslation();
-  const { syncing, syncFromLdap } = useUsers();
-  const [lastResult, setLastResult] = useState<LdapSyncResult | null>(null);
-  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
-
-  const handleSync = async () => {
-    const result = await syncFromLdap();
-    if (result) {
-      setLastResult(result);
-      setLastSyncAt(new Date());
-    }
-  };
-
-  return (
-    <Card>
-      <Space direction="vertical" size={16} style={{ width: "100%" }}>
-        <div>
-          <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
-            {t("config.ldap.desc")}
-          </Typography.Paragraph>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            {lastSyncAt
-              ? t("config.ldap.lastSync", { time: lastSyncAt.toLocaleString() })
-              : t("config.ldap.neverSynced")}
-          </Typography.Text>
-        </div>
-
-        <Button
-          type="primary"
-          icon={<SyncOutlined spin={syncing} />}
-          loading={syncing}
-          onClick={handleSync}
-        >
-          {syncing ? t("config.ldap.syncing") : t("config.ldap.syncButton")}
-        </Button>
-
-        {lastResult && (
-          <>
-            <Descriptions column={3} size="small" bordered>
-              <Descriptions.Item label={t("config.ldap.created")}>{lastResult.created}</Descriptions.Item>
-              <Descriptions.Item label={t("config.ldap.updated")}>{lastResult.updated}</Descriptions.Item>
-              <Descriptions.Item label={t("config.ldap.skipped")}>{lastResult.skipped}</Descriptions.Item>
-            </Descriptions>
-            {lastResult.errors.length > 0 && (
-              <Alert
-                type="warning"
-                showIcon
-                message={`${t("config.ldap.errorsTitle")} (${lastResult.errors.length})`}
-                description={
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {lastResult.errors.map((e, i) => (
-                      <li key={i}>{e}</li>
-                    ))}
-                  </ul>
-                }
-              />
-            )}
-          </>
-        )}
-      </Space>
     </Card>
   );
 }
