@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -8,85 +9,107 @@ import {
   type ReactNode,
 } from "react";
 import { Spin } from "antd";
+import { useTranslation } from "react-i18next";
 import type { Role, User } from "@/types";
-import { loginRequest, meRequest } from "@/api/auth";
-import { getToken, setToken } from "@/api/client";
+import { authConfigRequest, loginRequest, meRequest, type AuthConfig } from "@/api/auth";
+import { ApiError, getToken, setToken, setUnauthorizedHandler } from "@/api/client";
 
-// Реальная авторизация через бэкенд (LDAP / dev-bypass).
-// Интерфейс совпадает с прежним моком ({ user, setRole }), поэтому экраны не меняются.
-// «act as» теперь перелогинивает под представителя роли из сидовой БД.
+// Авторизация через бэкенд (LDAP / dev-bypass).
+// Два хука:
+//  • useAuthState() — для экрана входа и гарда: пользователя может не быть;
+//  • useAuth()      — для экранов внутри приложения: пользователь гарантирован.
+// Публичный интерфейс useAuth() ({ user, setRole, login, logout }) прежний, поэтому экраны не меняются.
+
+interface AuthStateValue {
+  user: User | null;
+  // null — бэкенд не ответил на /auth/config (экран входа покажет «сервер недоступен»).
+  config: AuthConfig | null;
+  // Сессия была сброшена из-за 401 — экран входа объясняет, почему пользователь снова здесь.
+  sessionExpired: boolean;
+  login: (userName: string, password?: string) => Promise<void>;
+  logout: () => void;
+  reloadConfig: () => Promise<void>;
+}
 
 interface AuthContextValue {
   user: User;
+  devBypass: boolean;
   setRole: (role: Role) => void;
   login: (userName: string, password?: string) => Promise<void>;
   logout: () => void;
 }
 
-// Представитель каждой роли среди сидовых пользователей (для переключателя ролей).
-const ROLE_SAMPLE: Record<Role, string> = {
-  employee: "e.petrova",
-  it: "s.orlov",
-  admin: "m.zaytseva",
-  superadmin: "a.ivanov",
-};
-const DEFAULT_USER = ROLE_SAMPLE.superadmin;
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthStateValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
+  const [config, setConfig] = useState<AuthConfig | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [booting, setBooting] = useState(true);
   const bootstrapped = useRef(false);
+  const userRef = useRef<User | null>(null);
+  userRef.current = user;
 
-  const login = async (userName: string, password = "") => {
+  const login = useCallback(async (userName: string, password = "") => {
     const u = await loginRequest(userName, password);
+    setSessionExpired(false);
     setUser(u);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
+    setSessionExpired(false);
     setUser(null);
-    void login(DEFAULT_USER);
-  };
+  }, []);
 
-  // Начальная загрузка: восстановить сессию по токену либо войти под пользователем по умолчанию.
+  const reloadConfig = useCallback(async () => {
+    try {
+      setConfig(await authConfigRequest());
+    } catch {
+      setConfig(null);
+    }
+  }, []);
+
+  // Протухший токен в любом запросе → сброс сессии и экран входа.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setToken(null);
+      if (userRef.current) setSessionExpired(true);
+      setUser(null);
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
+
+  // Начальная загрузка: настройки экрана входа + восстановление сессии по токену.
   useEffect(() => {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
     (async () => {
-      try {
-        if (getToken()) {
+      const restore = async () => {
+        if (!getToken()) return;
+        try {
           setUser(await meRequest());
-          return;
+        } catch (e) {
+          // 401 уже обработан хендлером; при недоступном сервере токен не трогаем —
+          // после восстановления связи пользователь войдёт без повторного ввода пароля.
+          if (e instanceof ApiError && e.status === 401) setSessionExpired(true);
         }
-      } catch {
-        setToken(null);
-      }
-      try {
-        await login(DEFAULT_USER);
-      } catch {
-        // оставляем экран загрузки, если бэкенд недоступен
-      }
+      };
+      await Promise.all([reloadConfig(), restore()]);
+      setBooting(false);
     })();
-  }, []);
+  }, [reloadConfig]);
 
-  const value = useMemo<AuthContextValue | null>(
-    () =>
-      user
-        ? {
-            user,
-            setRole: (role) => void login(ROLE_SAMPLE[role]),
-            login,
-            logout,
-          }
-        : null,
-    [user],
+  const value = useMemo<AuthStateValue>(
+    () => ({ user, config, sessionExpired, login, logout, reloadConfig }),
+    [user, config, sessionExpired, login, logout, reloadConfig],
   );
 
-  if (!value) {
+  if (booting) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
-        <Spin size="large" tip="Подключение к серверу…">
+        <Spin size="large" tip={t("auth.connecting")}>
           <div style={{ padding: 24 }} />
         </Spin>
       </div>
@@ -96,8 +119,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth(): AuthContextValue {
+export function useAuthState(): AuthStateValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
+  if (!ctx) throw new Error("useAuthState must be used within <AuthProvider>");
   return ctx;
+}
+
+// Для экранов за RequireAuth: пользователь гарантированно есть.
+export function useAuth(): AuthContextValue {
+  const { user, config, login, logout } = useAuthState();
+  if (!user) throw new Error("useAuth() вызван вне защищённой зоны (нет пользователя)");
+  const devBypass = config?.devBypass ?? false;
+  return {
+    user,
+    devBypass,
+    // «Войти как» — только в демо-режиме: перелогин под представителем роли из БД.
+    setRole: (role) => {
+      const sample = config?.demoUsers.find((d) => d.role === role);
+      if (devBypass && sample) void login(sample.userName);
+    },
+    login,
+    logout,
+  };
 }

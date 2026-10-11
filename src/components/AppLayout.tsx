@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Button, Layout, Menu, Segmented, Select, Space, Tooltip, Typography, theme } from "antd";
+import { Avatar, Button, Dropdown, Layout, Menu, Select, Space, Tag, Typography, theme } from "antd";
 import {
   DashboardOutlined,
   CustomerServiceOutlined,
@@ -9,8 +9,9 @@ import {
   PhoneOutlined,
   BarChartOutlined,
   SettingOutlined,
-  BulbOutlined,
-  BulbFilled,
+  LogoutOutlined,
+  DownOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -18,6 +19,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { can, type Capability } from "@/auth/permissions";
 import { useThemeMode } from "@/theme/themeMode";
 import { palette } from "@/theme/colors";
+import { ThemeLangControls } from "@/components/ThemeLangControls";
 import type { Role } from "@/types";
 
 const { Sider, Header, Content } = Layout;
@@ -44,10 +46,16 @@ const NAV: NavItem[] = [
 
 const ROLE_OPTIONS: Role[] = ["employee", "it", "admin", "superadmin"];
 
+// Инициалы для аватара: «Иванов Алексей Сергеевич» → «ИА».
+function initials(fullName: string): string {
+  const [last = "", first = ""] = fullName.trim().split(/\s+/);
+  return `${last.charAt(0)}${first.charAt(0)}`.toUpperCase();
+}
+
 export function AppLayout() {
   const { t, i18n } = useTranslation();
-  const { user, setRole } = useAuth();
-  const { mode, toggle } = useThemeMode();
+  const { user, setRole, logout, devBypass } = useAuth();
+  const { mode } = useThemeMode();
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
@@ -104,40 +112,62 @@ export function AppLayout() {
             borderBottom: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Tooltip title={isDark ? t("common.themeLight") : t("common.themeDark")}>
-            <Button
-              type="text"
-              aria-label={isDark ? t("common.themeLight") : t("common.themeDark")}
-              icon={isDark ? <BulbFilled /> : <BulbOutlined />}
-              onClick={toggle}
-            />
-          </Tooltip>
+          <ThemeLangControls />
 
-          <Segmented
-            size="small"
-            value={i18n.language.startsWith("en") ? "en" : "ru"}
-            options={[
-              { label: "RU", value: "ru" },
-              { label: "EN", value: "en" },
-            ]}
-            onChange={(v) => i18n.changeLanguage(v as string)}
-          />
+          {/* «Войти как» — только в демо-режиме (AUTH_DEV_BYPASS): с реальным AD роль задают группы домена */}
+          {devBypass && (
+            <Space size={8}>
+              <Tag color="warning" icon={<ExperimentOutlined />} style={{ marginInlineEnd: 0 }}>
+                {t("common.actAs")}
+              </Tag>
+              <Select<Role>
+                size="small"
+                value={user.role}
+                style={{ width: 170 }}
+                onChange={(r) => {
+                  setRole(r);
+                  navigate("/");
+                }}
+                options={ROLE_OPTIONS.map((r) => ({ value: r, label: t(`roles.${r}`) }))}
+              />
+            </Space>
+          )}
 
-          <Space size={8}>
-            <Typography.Text type="secondary">{t("common.actAs")}:</Typography.Text>
-            <Select<Role>
-              size="small"
-              value={user.role}
-              style={{ width: 190 }}
-              onChange={(r) => {
-                setRole(r);
-                navigate("/");
-              }}
-              options={ROLE_OPTIONS.map((r) => ({ value: r, label: t(`roles.${r}`) }))}
-            />
-          </Space>
-
-          <Typography.Text strong>{user.fullName}</Typography.Text>
+          <Dropdown
+            trigger={["click"]}
+            placement="bottomRight"
+            menu={{
+              items: [
+                {
+                  key: "me",
+                  disabled: true,
+                  label: (
+                    <div style={{ lineHeight: 1.4, maxWidth: 260 }}>
+                      <Typography.Text strong style={{ display: "block" }}>
+                        {user.fullName}
+                      </Typography.Text>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        {[t(`roles.${user.role}`), user.orgTitle].filter(Boolean).join(", ")}
+                      </Typography.Text>
+                    </div>
+                  ),
+                },
+                { type: "divider" },
+                { key: "logout", icon: <LogoutOutlined />, label: t("common.logout"), danger: true },
+              ],
+              onClick: ({ key }) => {
+                if (key === "logout") logout();
+              },
+            }}
+          >
+            <Button type="text" style={{ height: 40, display: "flex", alignItems: "center", gap: 8, paddingInline: 8 }}>
+              <Avatar size={28} src={user.avatarUrl || undefined} style={{ background: palette.primary, fontSize: 12 }}>
+                {initials(user.fullName)}
+              </Avatar>
+              <Typography.Text strong>{user.fullName}</Typography.Text>
+              <DownOutlined style={{ fontSize: 10, color: token.colorTextTertiary }} />
+            </Button>
+          </Dropdown>
         </Header>
 
         <Content style={{ padding: 24 }}>
