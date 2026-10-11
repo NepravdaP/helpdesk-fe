@@ -428,5 +428,35 @@
     "upcomingBookings": "Active bookings",
     "count": "Count",
     "empty": "No data"
+  },
+  "auth": {
+    "connecting": "Connecting to the server…",
+    "title": "Sign in",
+    "subtitle": "Windows (domain) account",
+    "userName": "Login",
+    "userNamePlaceholder": "ivanov",
+    "userNameRequired": "Enter your login",
+    "password": "Password",
+    "passwordRequired": "Enter your password",
+    "passwordDemoHint": "Password isn't checked in demo mode",
+    "capsLock": "Caps Lock is on",
+    "submit": "Sign in",
+    "demoTitle": "Demo mode — no password needed",
+    "footer": "Internal resource of the Ministry of Construction of Russia",
+    "sessionExpired": "Your session expired. Sign in again.",
+    "serverUnavailable": "Server unavailable",
+    "serverUnavailableDesc": "Couldn't reach the server. Check your network connection or contact the IT department.",
+    "retry": "Retry",
+    "errors": {
+      "INVALID_LOGIN_FORMAT": "Login contains invalid characters",
+      "INVALID_CREDENTIALS": "Wrong login or password",
+      "ACCOUNT_LOCKED": "Your account is locked. Contact the IT department.",
+      "ACCOUNT_DISABLED": "Sign-in is not allowed for this account. Contact the IT department.",
+      "PASSWORD_EXPIRED": "Your password has expired. Change it on your work computer and sign in again.",
+      "DIRECTORY_UNAVAILABLE": "Directory service is unavailable. Try later or contact the IT department.",
+      "TOO_MANY_ATTEMPTS": "Too many failed attempts. Try again in {{minutes}} min.",
+      "NETWORK": "Server unavailable. Check your network connection.",
+      "unknown": "Couldn't sign in. Try again."
+    }
   }
 }
